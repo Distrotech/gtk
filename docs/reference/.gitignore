@@ -1,0 +1,24 @@
+/*.bak
+/*.lo
+/*.o
+/*.orig
+/*.rej
+/*.tab.c
+/*~
+/.*.sw[nop]
+/.deps
+/.dirstamp
+/.gitignore
+/.libs
+/GPATH
+/GRTAGS
+/GSYMS
+/GTAGS
+/ID
+/Makefile
+/Makefile.in
+/TAGS
+/_libs
+/dev/usbdev1.1 /dev/usbdev2.1 /dev/usbdev3.1 /dev/usbdev4.1 /lib/libanl.so.1 /lib/libblkid.so.1 /lib/libBrokenLocale.so.1 /lib/libcidn.so.1 /lib/libcom_err.so.2.1 /lib/libcrypt.so.1 /lib/libgudev-1.0.so.0.1.1 /lib/libkeyutils.so.1 /lib/libmount.so.1 /lib/libnsl.so.1 /lib/librt.so.1 /lib/libthread_db.so.1 /lib/libudev.so.0.13.1 /lib/libudev.so.1 /lib/libutil.so.1 /lib/libuuid.so.1 /root/dtscon-0.1
+/so_locations
+/tags
