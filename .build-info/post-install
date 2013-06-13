@@ -1,0 +1,4 @@
+#!/bin/bash
+
+
+cp gdk/gdkconfig.h ${3}/usr/include/gtk-2.0
