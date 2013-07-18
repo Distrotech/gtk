@@ -10786,3 +10786,20 @@ gdk_window_get_scale_factor (GdkWindow *window)
 
   return 1;
 }
+
+void
+gdk_window_set_shadow_region (GdkWindow      *window,
+                              cairo_region_t *region)
+{
+  GdkWindowImplClass *impl_class;
+
+  g_return_if_fail (GDK_IS_WINDOW (window));
+
+  if (GDK_WINDOW_DESTROYED (window))
+    return;
+
+  impl_class = GDK_WINDOW_IMPL_GET_CLASS (window->impl);
+
+  if (impl_class->set_shadow_region)
+    impl_class->set_shadow_region (window, region);
+}

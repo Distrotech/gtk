@@ -5444,6 +5444,38 @@ gdk_x11_window_get_scale_factor (GdkWindow *window)
 }
 
 static void
+gdk_x11_window_set_shadow_region (GdkWindow      *window,
+                                  cairo_region_t *region)
+{
+  Atom     xatom;
+  int num_rectangles, i;
+  gulong *data;
+  cairo_rectangle_int_t rectangle;
+
+  num_rectangles = cairo_region_num_rectangles (region);
+g_print ("region has %d rects\n", num_rectangles);
+  data = g_new (gulong, 4 * num_rectangles);
+  for (i = 0; i < num_rectangles; i++)
+    {
+      cairo_region_get_rectangle (region, i, &rectangle);
+      data[4*i] = rectangle.x;
+      data[4*i+1] = rectangle.y;
+      data[4*i+2] = rectangle.width;
+      data[4*i+3] = rectangle.height;
+      g_print ("%d %d %d %d\n", rectangle.x, rectangle.y, rectangle.width, rectangle.height);
+    }
+
+  xatom = gdk_x11_get_xatom_by_name_for_display (GDK_WINDOW_DISPLAY (window),
+                                                 "_MUTTER_SHADOW_SHAPE");
+  XChangeProperty (GDK_WINDOW_XDISPLAY (window),
+                   GDK_WINDOW_XID (window),
+                   xatom, XA_CARDINAL,
+                   32, PropModeReplace,
+                   (guchar *)data, 4 * num_rectangles);
+  g_free (data);
+}
+
+static void
 gdk_window_impl_x11_class_init (GdkWindowImplX11Class *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
@@ -5531,4 +5563,5 @@ gdk_window_impl_x11_class_init (GdkWindowImplX11Class *klass)
   impl_class->change_property = _gdk_x11_window_change_property;
   impl_class->delete_property = _gdk_x11_window_delete_property;
   impl_class->get_scale_factor = gdk_x11_window_get_scale_factor;
+  impl_class->set_shadow_region = gdk_x11_window_set_shadow_region;
 }
