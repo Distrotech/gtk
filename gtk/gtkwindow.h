@@ -467,6 +467,18 @@ GDK_AVAILABLE_IN_3_10
 void     gtk_window_set_titlebar           (GtkWindow    *window,
                                             GtkWidget    *titlebar);
 
+GDK_AVAILABLE_IN_3_12
+void     gtk_window_add_popover            (GtkWindow     *window,
+                                            GtkWidget     *popover);
+GDK_AVAILABLE_IN_3_12
+void     gtk_window_remove_popover         (GtkWindow     *window,
+                                            GtkWidget     *popover);
+GDK_AVAILABLE_IN_3_12
+void     gtk_window_set_popover_position   (GtkWindow     *window,
+                                            GtkWidget     *popover,
+                                            gint           x,
+                                            gint           y);
+
 G_END_DECLS
 
 #endif /* __GTK_WINDOW_H__ */

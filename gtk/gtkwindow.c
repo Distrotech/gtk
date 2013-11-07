@@ -118,6 +118,15 @@
 #define MNEMONICS_DELAY 300 /* ms */
 
 typedef struct _GtkDeviceGrabInfo GtkDeviceGrabInfo;
+typedef struct _GtkWindowPopover GtkWindowPopover;
+
+struct _GtkWindowPopover
+{
+  GtkWidget *widget;
+  GdkWindow *window;
+  gint x;
+  gint y;
+};
 
 struct _GtkWindowPrivate
 {
@@ -131,6 +140,8 @@ struct _GtkWindowPrivate
   GtkWindowGroup        *group;
   GdkScreen             *screen;
   GtkApplication        *application;
+
+  GHashTable            *popovers;
 
   GdkModifierType        mnemonic_modifier;
   GdkWindowTypeHint      gdk_type_hint;
@@ -1260,6 +1271,18 @@ gtk_window_close (GtkWindow *window)
 }
 
 static void
+popover_destroy (GtkWindowPopover *popover)
+{
+  if (popover->widget)
+    gtk_widget_unparent (popover->widget);
+
+  if (popover->window)
+    gdk_window_destroy (popover->window);
+
+  g_free (popover);
+}
+
+static void
 gtk_window_init (GtkWindow *window)
 {
   GtkStyleContext *context;
@@ -1309,6 +1332,8 @@ gtk_window_init (GtkWindow *window)
   priv->has_resize_grip = TRUE;
   priv->mnemonics_visible = TRUE;
   priv->focus_visible = TRUE;
+  priv->popovers = g_hash_table_new_full (NULL, NULL, NULL,
+                                          (GDestroyNotify) popover_destroy);
 
   g_object_ref_sink (window);
   priv->has_user_ref_count = TRUE;
@@ -5094,6 +5119,8 @@ gtk_window_finalize (GObject *object)
       priv->mnemonics_display_timeout_id = 0;
     }
 
+  g_hash_table_destroy (priv->popovers);
+
   G_OBJECT_CLASS (gtk_window_parent_class)->finalize (object);
 }
 
@@ -5476,6 +5503,19 @@ gtk_window_hide (GtkWidget *widget)
 }
 
 static void
+popover_map (GtkWidget        *widget,
+             GtkWindowPopover *popover)
+{
+  if (popover->window)
+    {
+      gdk_window_show (popover->window);
+
+      if (gtk_widget_get_visible (popover->widget))
+        gtk_widget_map (popover->widget);
+    }
+}
+
+static void
 gtk_window_map (GtkWidget *widget)
 {
   GtkWidget *child;
@@ -5585,6 +5625,8 @@ gtk_window_map (GtkWidget *widget)
     gtk_window_set_focus_visible (window, gtk_window_get_focus_visible (priv->transient_parent));
   else
     gtk_window_set_focus_visible (window, FALSE);
+
+  g_hash_table_foreach (priv->popovers, (GHFunc) popover_map, window);
 }
 
 static gboolean
@@ -5606,6 +5648,18 @@ gtk_window_map_event (GtkWidget   *widget,
 }
 
 static void
+popover_unmap (GtkWidget        *widget,
+               GtkWindowPopover *popover)
+{
+  if (popover->window)
+    {
+      if (gtk_widget_is_visible (popover->widget))
+        gtk_widget_unmap (popover->widget);
+      gdk_window_hide (popover->window);
+    }
+}
+
+static void
 gtk_window_unmap (GtkWidget *widget)
 {
   GtkWindow *window = GTK_WINDOW (widget);
@@ -5621,6 +5675,7 @@ gtk_window_unmap (GtkWidget *widget)
       return;
     }
 
+  g_hash_table_foreach (priv->popovers, (GHFunc) popover_unmap, window);
   gdk_window = gtk_widget_get_window (widget);
 
   gtk_widget_set_mapped (widget, FALSE);
@@ -5751,6 +5806,40 @@ gtk_window_get_remembered_size (GtkWindow *window,
       *width = MAX (*width, info->last.configure_request.width);
       *height = MAX (*height, info->last.configure_request.height);
     }
+}
+
+static void
+popover_realize (GtkWidget        *widget,
+                 GtkWindowPopover *popover,
+                 GtkWindow        *window)
+{
+  GdkWindow *parent_window;
+  GdkWindowAttr attributes;
+  GtkAllocation allocation;
+  gint attributes_mask;
+
+  if (popover->window)
+    return;
+
+  gtk_widget_get_allocation (widget, &allocation);
+
+  attributes.window_type = GDK_WINDOW_CHILD;
+  attributes.wclass = GDK_INPUT_OUTPUT;
+  attributes.x = popover->x;
+  attributes.y = popover->y;
+  attributes.width = allocation.width;
+  attributes.height = allocation.height;
+  attributes.visual = gtk_widget_get_visual (widget);
+  attributes.event_mask = gtk_widget_get_events (popover->widget) |
+    GDK_EXPOSURE_MASK;
+  attributes_mask = GDK_WA_X | GDK_WA_Y | GDK_WA_VISUAL;
+
+  parent_window = gtk_widget_get_window (GTK_WIDGET (window));
+  popover->window =
+    gdk_window_new (parent_window, &attributes, attributes_mask);
+  gtk_widget_register_window (GTK_WIDGET (window), popover->window);
+
+  gtk_widget_set_parent_window (popover->widget, popover->window);
 }
 
 static void
@@ -5998,10 +6087,21 @@ gtk_window_realize (GtkWidget *widget)
   if (priv->has_resize_grip)
     resize_grip_create_window (window);
 
+  g_hash_table_foreach (priv->popovers, (GHFunc) popover_realize, window);
+
   old_scale = priv->scale;
   priv->scale = gtk_widget_get_scale_factor (widget);
   if (old_scale != priv->scale)
     _gtk_widget_scale_changed (widget);
+}
+
+static void
+popover_unrealize (GtkWidget        *widget,
+                   GtkWindowPopover *popover)
+{
+  gtk_widget_unrealize (popover->widget);
+  gdk_window_destroy (popover->window);
+  popover->window = NULL;
 }
 
 static void
@@ -6053,6 +6153,8 @@ gtk_window_unrealize (GtkWidget *widget)
           priv->border_window[i] = NULL;
         }
     }
+
+  g_hash_table_foreach (priv->popovers, (GHFunc) popover_unrealize, window);
 
   GTK_WIDGET_CLASS (gtk_window_parent_class)->unrealize (widget);
 }
@@ -6772,6 +6874,52 @@ _gtk_window_set_allocation (GtkWindow           *window,
 }
 
 static void
+popover_size_allocate (GtkWidget        *widget,
+                       GtkWindowPopover *popover,
+                       GtkWindow        *window)
+{
+  GtkAllocation allocation, window_alloc;
+  GtkRequisition child_req;
+  gint x, y;
+
+  if (!popover->window)
+    return;
+
+  gtk_widget_get_allocation (GTK_WIDGET (window), &window_alloc);
+  gtk_widget_get_preferred_size (widget, &child_req, NULL);
+  allocation.x = allocation.y = 0;
+  allocation.width = child_req.width;
+  allocation.height = child_req.height;
+
+  x = popover->x;
+  y = popover->y;
+
+  if (gtk_widget_get_direction (widget) == GTK_TEXT_DIR_RTL)
+    x -= allocation.width;
+
+  x = CLAMP (x, 0, window_alloc.width - allocation.width);
+  y = CLAMP (y, 0, window_alloc.height - allocation.height);
+
+  if (gtk_widget_get_hexpand (widget))
+    {
+      if (gtk_widget_get_direction (widget) == GTK_TEXT_DIR_LTR)
+        allocation.width = window_alloc.width - x;
+      else
+        {
+          allocation.width += x;
+          x = 0;
+        }
+    }
+
+  if (gtk_widget_get_vexpand (widget))
+    allocation.height = window_alloc.height - y;
+
+  gdk_window_move_resize (popover->window, x, y,
+                          allocation.width, allocation.height);
+  gtk_widget_size_allocate (widget, &allocation);
+}
+
+static void
 gtk_window_size_allocate (GtkWidget     *widget,
                           GtkAllocation *allocation)
 {
@@ -6784,6 +6932,9 @@ gtk_window_size_allocate (GtkWidget     *widget,
   child = gtk_bin_get_child (GTK_BIN (window));
   if (child && gtk_widget_get_visible (child))
     gtk_widget_size_allocate (child, &child_allocation);
+
+  g_hash_table_foreach (window->priv->popovers,
+                        (GHFunc) popover_size_allocate, widget);
 }
 
 static gint
@@ -9347,10 +9498,12 @@ gtk_window_draw (GtkWidget *widget,
 		 cairo_t   *cr)
 {
   GtkWindowPrivate *priv = GTK_WINDOW (widget)->priv;
+  GtkWindowPopover *popover;
   GtkStyleContext *context;
   gboolean ret = FALSE;
   GtkAllocation allocation;
   GtkBorder window_border;
+  GHashTableIter iter;
   gint title_height;
 
   context = gtk_widget_get_style_context (widget);
@@ -9433,6 +9586,16 @@ gtk_window_draw (GtkWidget *widget,
 
       cairo_restore (cr);
       gtk_style_context_restore (context);
+    }
+
+  g_hash_table_iter_init (&iter, priv->popovers);
+
+  while (g_hash_table_iter_next (&iter, NULL, (gpointer*) &popover))
+    {
+      if (popover->window && gtk_widget_is_visible (popover->widget) &&
+          gtk_cairo_should_draw_window (cr, popover->window))
+        gtk_container_propagate_draw (GTK_CONTAINER (widget),
+                                      popover->widget, cr);
     }
 
   return ret;
@@ -11680,4 +11843,79 @@ _gtk_window_handle_button_press_for_widget (GtkWidget      *widget,
     }
 
   return FALSE;
+}
+
+void
+gtk_window_add_popover (GtkWindow *window,
+                        GtkWidget *popover)
+{
+  GtkWindowPrivate *priv;
+  GtkWindowPopover *data;
+
+  g_return_if_fail (GTK_IS_WINDOW (window));
+  g_return_if_fail (GTK_IS_WIDGET (popover));
+  g_return_if_fail (gtk_widget_get_parent (popover) == NULL);
+
+  priv = window->priv;
+
+  if (g_hash_table_contains (priv->popovers, popover))
+    return;
+
+  data = g_new0 (GtkWindowPopover, 1);
+  data->widget = popover;
+  g_hash_table_insert (priv->popovers, popover, data);
+
+  if (gtk_widget_get_realized (GTK_WIDGET (window)))
+    popover_realize (popover, data, window);
+
+  gtk_widget_set_parent (popover, GTK_WIDGET (window));
+}
+
+void
+gtk_window_remove_popover (GtkWindow *window,
+                           GtkWidget *popover)
+{
+  GtkWindowPrivate *priv;
+
+  g_return_if_fail (GTK_IS_WINDOW (window));
+  g_return_if_fail (GTK_IS_WIDGET (popover));
+
+  priv = window->priv;
+  g_hash_table_remove (priv->popovers, popover);
+}
+
+void
+gtk_window_set_popover_position (GtkWindow     *window,
+                                 GtkWidget     *popover,
+                                 gint           x,
+                                 gint           y)
+{
+  GtkWindowPopover *data = NULL;
+  GtkWindowPrivate *priv;
+
+  g_return_if_fail (GTK_IS_WINDOW (window));
+  g_return_if_fail (GTK_IS_WIDGET (popover));
+
+  priv = window->priv;
+  data = g_hash_table_lookup (priv->popovers, popover);
+
+  if (!data)
+    {
+      g_warning ("Widget %s(%p) is not a popover of window %s",
+                 gtk_widget_get_name (popover), popover,
+                 gtk_widget_get_name (GTK_WIDGET (window)));
+      return;
+    }
+
+  data->x = x;
+  data->y = y;
+
+  if (!data->window && gtk_widget_get_realized (GTK_WIDGET (window)))
+    popover_realize (popover, data, window);
+
+  if (data->window && gtk_widget_is_visible (GTK_WIDGET (window)))
+    {
+      popover_size_allocate (popover, data, window);
+      popover_map (popover, data);
+    }
 }
