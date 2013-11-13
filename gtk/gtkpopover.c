@@ -540,6 +540,7 @@ gtk_popover_update_position (GtkPopover *popover)
 
   gtk_window_set_popover_position (priv->window,
                                    GTK_WIDGET (popover),
+                                   priv->final_position,
                                    win_x, win_y);
 
   gtk_popover_update_shape (popover);

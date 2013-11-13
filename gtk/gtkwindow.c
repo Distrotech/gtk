@@ -124,6 +124,7 @@ struct _GtkWindowPopover
 {
   GtkWidget *widget;
   GdkWindow *window;
+  GtkPositionType pos;
   gint x;
   gint y;
 };
@@ -6902,7 +6903,14 @@ popover_size_allocate (GtkWidget        *widget,
 
   if (gtk_widget_get_hexpand (widget))
     {
-      if (gtk_widget_get_direction (widget) == GTK_TEXT_DIR_LTR)
+      if (popover->pos != GTK_POS_LEFT &&
+          popover->pos != GTK_POS_RIGHT)
+        {
+          allocation.width = window_alloc.width;
+          x = 0;
+        }
+      else if ((popover->pos == GTK_POS_RIGHT) ==
+               (gtk_widget_get_direction (widget) == GTK_TEXT_DIR_LTR))
         allocation.width = window_alloc.width - x;
       else
         {
@@ -6912,7 +6920,20 @@ popover_size_allocate (GtkWidget        *widget,
     }
 
   if (gtk_widget_get_vexpand (widget))
-    allocation.height = window_alloc.height - y;
+    {
+      if (popover->pos == GTK_POS_TOP)
+        {
+          allocation.height += allocation.y;
+          y = 0;
+        }
+      else if (popover->pos == GTK_POS_BOTTOM)
+        allocation.height = window_alloc.height - y;
+      else
+        {
+          allocation.height = window_alloc.height;
+          y = 0;
+        }
+    }
 
   gdk_window_move_resize (popover->window, x, y,
                           allocation.width, allocation.height);
@@ -11885,10 +11906,11 @@ gtk_window_remove_popover (GtkWindow *window,
 }
 
 void
-gtk_window_set_popover_position (GtkWindow     *window,
-                                 GtkWidget     *popover,
-                                 gint           x,
-                                 gint           y)
+gtk_window_set_popover_position (GtkWindow       *window,
+                                 GtkWidget       *popover,
+                                 GtkPositionType  pos,
+                                 gint             x,
+                                 gint             y)
 {
   GtkWindowPopover *data = NULL;
   GtkWindowPrivate *priv;
@@ -11909,6 +11931,7 @@ gtk_window_set_popover_position (GtkWindow     *window,
 
   data->x = x;
   data->y = y;
+  data->pos = pos;
 
   if (!data->window && gtk_widget_get_realized (GTK_WIDGET (window)))
     popover_realize (popover, data, window);

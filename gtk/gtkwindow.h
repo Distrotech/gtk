@@ -474,10 +474,11 @@ GDK_AVAILABLE_IN_3_12
 void     gtk_window_remove_popover         (GtkWindow     *window,
                                             GtkWidget     *popover);
 GDK_AVAILABLE_IN_3_12
-void     gtk_window_set_popover_position   (GtkWindow     *window,
-                                            GtkWidget     *popover,
-                                            gint           x,
-                                            gint           y);
+void     gtk_window_set_popover_position   (GtkWindow       *window,
+                                            GtkWidget       *popover,
+                                            GtkPositionType  pos,
+                                            gint             x,
+                                            gint             y);
 
 G_END_DECLS
 
