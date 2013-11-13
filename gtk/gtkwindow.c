@@ -11866,6 +11866,16 @@ _gtk_window_handle_button_press_for_widget (GtkWidget      *widget,
   return FALSE;
 }
 
+/**
+ * gtk_window_add_popover:
+ * @window: a #GtkWindow
+ * @popover: a #GtkWidget to be added as a popover of @window
+ *
+ * Adds a widget so it acts as a popover within @window, it can
+ * be later positioned through gtk_window_set_popover_position().
+ *
+ * Since: 3.12
+ **/
 void
 gtk_window_add_popover (GtkWindow *window,
                         GtkWidget *popover)
@@ -11892,6 +11902,15 @@ gtk_window_add_popover (GtkWindow *window,
   gtk_widget_set_parent (popover, GTK_WIDGET (window));
 }
 
+/**
+ * gtk_window_remove_popover:
+ * @window: a #GtkWindow
+ * @popover: a #GtkWidget acting as a popover on @window
+ *
+ * Removes @popover from being a popover of @window.
+ *
+ * Since: 3.12
+ **/
 void
 gtk_window_remove_popover (GtkWindow *window,
                            GtkWidget *popover)
@@ -11905,6 +11924,21 @@ gtk_window_remove_popover (GtkWindow *window,
   g_hash_table_remove (priv->popovers, popover);
 }
 
+/**
+ * gtk_window_set_popover_position:
+ * @window: a #GtkWindow
+ * @popover: #GtkWidget to be positioned on top of window contents
+ * @pos: Position of the popover, relative of the contents it's related to
+ * @x: X position in toplevel coordinates
+ * @y: Y position in toplevel coordinates
+ *
+ * Positions @popover in the @x and @y coordinates given, relative to @window.
+ * If @popover is set to expand horizontally or vertically, the position given
+ * by @pos will be used to determine how the popover is allowed to expand
+ * without covering the content it's logically attached to.
+ *
+ * Since: 3.12
+ **/
 void
 gtk_window_set_popover_position (GtkWindow       *window,
                                  GtkWidget       *popover,
