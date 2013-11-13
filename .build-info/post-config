@@ -1,0 +1,6 @@
+#!/bin/bash
+
+#Dont build demos and things when bootstraping will need to rebuild librsvg and gdk-pixbuf too
+if [ ! -d /usr/${B_LIBDIRS}/gtk-3.0 ] && [ "${1}" == "${NARCH}" ];then
+  sed -i -e "s/^\(SRC_SUBDIRS = .*\)\(demos.*\)/\1#\2/" Makefile
+fi;
