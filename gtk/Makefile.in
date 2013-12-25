@@ -100,36 +100,35 @@ DIST_COMMON = $(top_srcdir)/Makefile.decl $(srcdir)/Makefile.in \
 @OS_UNIX_TRUE@	gtksearchenginetracker.h
 
 @OS_UNIX_TRUE@am__append_4 = $(gtk_os_unix_c_sources)
-@OS_UNIX_FALSE@am__append_5 = $(gtk_dbus_built_sources)
-@OS_WIN32_TRUE@am__append_6 = gtkprint-win32.h
-@OS_WIN32_TRUE@am__append_7 = $(gtk_os_win32_c_sources)
-@USE_X11_TRUE@am__append_8 = $(gtk_use_x11_c_sources)
-@USE_X11_TRUE@am__append_9 = $(gtk_use_x11_private_h_sources)
-@USE_WIN32_TRUE@am__append_10 = $(gtk_use_win32_c_sources)
-@USE_WIN32_TRUE@am__append_11 = $(gtk_use_win32_private_h_sources)
-@USE_QUARTZ_TRUE@am__append_12 = $(gtk_use_quartz_c_sources)
-@USE_QUARTZ_TRUE@am__append_13 = $(gtk_use_quartz_private_h_sources)
-@USE_QUARTZ_FALSE@@USE_WIN32_FALSE@@USE_X11_FALSE@am__append_14 = $(gtk_use_stub_c_sources)
-@USE_WIN32_TRUE@am__append_15 = -lole32 -lgdi32 -lcomdlg32 -lwinspool -lcomctl32
-@USE_WIN32_TRUE@am__append_16 = -Wl,-luuid
-@USE_WIN32_TRUE@am__append_17 = $(gtk_def) $(gtk_win32_res) $(deps)
+@OS_WIN32_TRUE@am__append_5 = gtkprint-win32.h
+@OS_WIN32_TRUE@am__append_6 = $(gtk_os_win32_c_sources)
+@USE_X11_TRUE@am__append_7 = $(gtk_use_x11_c_sources)
+@USE_X11_TRUE@am__append_8 = $(gtk_use_x11_private_h_sources)
+@USE_WIN32_TRUE@am__append_9 = $(gtk_use_win32_c_sources)
+@USE_WIN32_TRUE@am__append_10 = $(gtk_use_win32_private_h_sources)
+@USE_QUARTZ_TRUE@am__append_11 = $(gtk_use_quartz_c_sources)
+@USE_QUARTZ_TRUE@am__append_12 = $(gtk_use_quartz_private_h_sources)
+@USE_QUARTZ_FALSE@@USE_WIN32_FALSE@@USE_X11_FALSE@am__append_13 = $(gtk_use_stub_c_sources)
+@USE_WIN32_TRUE@am__append_14 = -lole32 -lgdi32 -lcomdlg32 -lwinspool -lcomctl32
+@USE_WIN32_TRUE@am__append_15 = -Wl,-luuid
+@USE_WIN32_TRUE@am__append_16 = $(gtk_def) $(gtk_win32_res) $(deps)
 
 # And include the regular ones:
-@HAVE_INTROSPECTION_TRUE@@USE_QUARTZ_TRUE@am__append_18 = \
+@HAVE_INTROSPECTION_TRUE@@USE_QUARTZ_TRUE@am__append_17 = \
 @HAVE_INTROSPECTION_TRUE@@USE_QUARTZ_TRUE@    gtkclipboard.c \
 @HAVE_INTROSPECTION_TRUE@@USE_QUARTZ_TRUE@    gtkdnd.c
 
-@HAVE_INTROSPECTION_TRUE@@USE_X11_TRUE@am__append_19 = \
+@HAVE_INTROSPECTION_TRUE@@USE_X11_TRUE@am__append_18 = \
 @HAVE_INTROSPECTION_TRUE@@USE_X11_TRUE@    gtksocket.c \
 @HAVE_INTROSPECTION_TRUE@@USE_X11_TRUE@    gtkplug.c
 
-@HAVE_INTROSPECTION_TRUE@@USE_X11_TRUE@am__append_20 = --add-include-path=$(top_builddir)/gdk/x11
-@HAVE_INTROSPECTION_TRUE@@USE_X11_TRUE@am__append_21 = xlib-2.0
-@HAVE_INTROSPECTION_TRUE@am__append_22 = Gtk-3.0.gir
-@HAVE_INTROSPECTION_TRUE@am__append_23 = $(gir_DATA) $(typelibs_DATA)
+@HAVE_INTROSPECTION_TRUE@@USE_X11_TRUE@am__append_19 = --add-include-path=$(top_builddir)/gdk/x11
+@HAVE_INTROSPECTION_TRUE@@USE_X11_TRUE@am__append_20 = xlib-2.0
+@HAVE_INTROSPECTION_TRUE@am__append_21 = Gtk-3.0.gir
+@HAVE_INTROSPECTION_TRUE@am__append_22 = $(gir_DATA) $(typelibs_DATA)
 bin_PROGRAMS = gtk-query-immodules-3.0$(EXEEXT) gtk-launch$(EXEEXT) \
 	$(am__EXEEXT_1)
-@BUILD_ICON_CACHE_TRUE@am__append_24 = gtk-update-icon-cache
+@BUILD_ICON_CACHE_TRUE@am__append_23 = gtk-update-icon-cache
 subdir = gtk
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/ax_prog_cc_for_build.m4 \
@@ -304,12 +303,11 @@ am__libgtk_3_la_SOURCES_DIST = deprecated/gtkactivatable.c \
 	gtkprinter.c gtkprinteroption.c gtkprinteroptionset.c \
 	gtkprinteroptionwidget.c gtkprintjob.c \
 	gtkprintoperation-unix.c gtkprintunixdialog.c \
-	gtkprintbackend.c gtksearchenginetracker.c gtkdbusgenerated.c \
-	gtkdbusgenerated.h gtkprint-win32.c gtkprintoperation-win32.c \
-	gtkwin32.c gtkplug.c gtksocket.c gtkxembed.c gtktrayicon-x11.c \
-	gtkmountoperation-x11.c gtkwin32embed.c gtkwin32embedwidget.c \
-	gtkmountoperation-stub.c gtksearchenginequartz.c \
-	gtkmodelmenu-quartz.c gtkquartz.c
+	gtkprintbackend.c gtksearchenginetracker.c gtkprint-win32.c \
+	gtkprintoperation-win32.c gtkwin32.c gtkplug.c gtksocket.c \
+	gtkxembed.c gtktrayicon-x11.c gtkmountoperation-x11.c \
+	gtkwin32embed.c gtkwin32embedwidget.c gtkmountoperation-stub.c \
+	gtksearchenginequartz.c gtkmodelmenu-quartz.c gtkquartz.c
 am__objects_1 = libgtk_3_la-gtkactivatable.lo libgtk_3_la-gtkaction.lo \
 	libgtk_3_la-gtkactiongroup.lo libgtk_3_la-gtkcolorsel.lo \
 	libgtk_3_la-gtkcolorseldialog.lo libgtk_3_la-gtkfontsel.lo \
@@ -528,8 +526,7 @@ am__objects_4 = $(am__objects_1) libgtk_3_la-gtkactionmuxer.lo \
 	libgtk_3_la-gtkviewport.lo libgtk_3_la-gtkwidget.lo \
 	libgtk_3_la-gtkwidgetpath.lo libgtk_3_la-gtkwindow.lo \
 	libgtk_3_la-gtkwin32theme.lo $(am__objects_2) $(am__objects_3)
-am__objects_5 = libgtk_3_la-gtkdbusgenerated.lo
-am__objects_6 = libgtk_3_la-gtkcustompaperunixdialog.lo \
+am__objects_5 = libgtk_3_la-gtkcustompaperunixdialog.lo \
 	libgtk_3_la-gtkpagesetupunixdialog.lo \
 	libgtk_3_la-gtkprinter.lo libgtk_3_la-gtkprinteroption.lo \
 	libgtk_3_la-gtkprinteroptionset.lo \
@@ -538,31 +535,34 @@ am__objects_6 = libgtk_3_la-gtkcustompaperunixdialog.lo \
 	libgtk_3_la-gtkprintoperation-unix.lo \
 	libgtk_3_la-gtkprintunixdialog.lo \
 	libgtk_3_la-gtkprintbackend.lo \
-	libgtk_3_la-gtksearchenginetracker.lo $(am__objects_5)
-@OS_UNIX_TRUE@am__objects_7 = $(am__objects_6)
-@OS_UNIX_FALSE@am__objects_8 = $(am__objects_5)
-am__objects_9 = libgtk_3_la-gtkprint-win32.lo \
+	libgtk_3_la-gtksearchenginetracker.lo
+@OS_UNIX_TRUE@am__objects_6 = $(am__objects_5)
+am__objects_7 = libgtk_3_la-gtkprint-win32.lo \
 	libgtk_3_la-gtkprintoperation-win32.lo libgtk_3_la-gtkwin32.lo
-@OS_WIN32_TRUE@am__objects_10 = $(am__objects_9)
-am__objects_11 = libgtk_3_la-gtkplug.lo libgtk_3_la-gtksocket.lo \
+@OS_WIN32_TRUE@am__objects_8 = $(am__objects_7)
+am__objects_9 = libgtk_3_la-gtkplug.lo libgtk_3_la-gtksocket.lo \
 	libgtk_3_la-gtkxembed.lo libgtk_3_la-gtktrayicon-x11.lo \
 	libgtk_3_la-gtkmountoperation-x11.lo
-@USE_X11_TRUE@am__objects_12 = $(am__objects_11)
-am__objects_13 = libgtk_3_la-gtkwin32embed.lo \
+@USE_X11_TRUE@am__objects_10 = $(am__objects_9)
+am__objects_11 = libgtk_3_la-gtkwin32embed.lo \
 	libgtk_3_la-gtkwin32embedwidget.lo \
 	libgtk_3_la-gtkmountoperation-stub.lo
-@USE_WIN32_TRUE@am__objects_14 = $(am__objects_13)
-am__objects_15 = libgtk_3_la-gtksearchenginequartz.lo \
+@USE_WIN32_TRUE@am__objects_12 = $(am__objects_11)
+am__objects_13 = libgtk_3_la-gtksearchenginequartz.lo \
 	libgtk_3_la-gtkmountoperation-stub.lo \
 	libgtk_3_la-gtkmodelmenu-quartz.lo libgtk_3_la-gtkquartz.lo
-@USE_QUARTZ_TRUE@am__objects_16 = $(am__objects_15)
-am__objects_17 = libgtk_3_la-gtkmountoperation-stub.lo
-@USE_QUARTZ_FALSE@@USE_WIN32_FALSE@@USE_X11_FALSE@am__objects_18 = $(am__objects_17)
-am__objects_19 = $(am__objects_4) $(am__objects_7) $(am__objects_8) \
+@USE_QUARTZ_TRUE@am__objects_14 = $(am__objects_13)
+am__objects_15 = libgtk_3_la-gtkmountoperation-stub.lo
+@USE_QUARTZ_FALSE@@USE_WIN32_FALSE@@USE_X11_FALSE@am__objects_16 = $(am__objects_15)
+am__objects_17 = $(am__objects_4) $(am__objects_6) $(am__objects_8) \
 	$(am__objects_10) $(am__objects_12) $(am__objects_14) \
-	$(am__objects_16) $(am__objects_18)
-am_libgtk_3_la_OBJECTS = $(am__objects_19)
-libgtk_3_la_OBJECTS = $(am_libgtk_3_la_OBJECTS)
+	$(am__objects_16)
+am_libgtk_3_la_OBJECTS = $(am__objects_17)
+am__objects_18 = libgtk_3_la-gtkdbusgenerated.lo
+am__objects_19 = $(am__objects_18)
+nodist_libgtk_3_la_OBJECTS = $(am__objects_19)
+libgtk_3_la_OBJECTS = $(am_libgtk_3_la_OBJECTS) \
+	$(nodist_libgtk_3_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
@@ -621,8 +621,8 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(libgtk_3_la_SOURCES) $(gtk_launch_SOURCES) \
-	$(gtk_query_immodules_3_0_SOURCES) \
+SOURCES = $(libgtk_3_la_SOURCES) $(nodist_libgtk_3_la_SOURCES) \
+	$(gtk_launch_SOURCES) $(gtk_query_immodules_3_0_SOURCES) \
 	$(gtk_update_icon_cache_SOURCES)
 DIST_SOURCES = $(am__libgtk_3_la_SOURCES_DIST) $(gtk_launch_SOURCES) \
 	$(gtk_query_immodules_3_0_SOURCES) \
@@ -1004,7 +1004,7 @@ XVFB_START = \
 	|| { echo "Gtk+Tests:ERROR: Failed to start Xvfb environment for X11 target tests."; exit 1; } \
 	&& DISPLAY=:$$XID && export DISPLAY
 
-INTROSPECTION_GIRS = $(am__append_22)
+INTROSPECTION_GIRS = $(am__append_21)
 INTROSPECTION_SCANNER_ARGS = \
 	--add-include-path=../gdk \
 	--warn-all
@@ -1409,8 +1409,8 @@ gtk_private_h_sources = gtkactionmuxer.h gtkactionobserver.h \
 	gtktreemenu.h $(gtk_private_type_h_sources) \
 	$(gtk_clipboard_dnd_h_sources) \
 	$(gtk_appchooser_impl_h_sources) $(am__append_3) \
-	$(am__append_6) $(am__append_9) $(am__append_11) \
-	$(am__append_13)
+	$(am__append_5) $(am__append_8) $(am__append_10) \
+	$(am__append_12)
 
 # GTK+ C sources to build the library from
 deprecated_c_sources = \
@@ -1753,13 +1753,14 @@ gtk_base_c_sources = \
 	$(gtk_clipboard_dnd_c_sources) \
 	$(gtk_appchooser_impl_c_sources)
 
-gtk_c_sources = $(gtk_base_c_sources) $(am__append_4) $(am__append_5) \
-	$(am__append_7) $(am__append_8) $(am__append_10) \
-	$(am__append_12) $(am__append_14)
-gtk_all_c_sources = $(gtk_base_c_sources) $(gtk_os_unix_c_sources) \
-	$(gtk_os_win32_c_sources) $(gtk_use_x11_c_sources) \
-	$(gtk_use_win32_c_sources) $(gtk_use_quartz_c_sources) \
-	$(gtk_use_stub_c_sources)
+nodist_gtk_c_sources = $(gtk_dbus_built_sources)
+gtk_c_sources = $(gtk_base_c_sources) $(am__append_4) $(am__append_6) \
+	$(am__append_7) $(am__append_9) $(am__append_11) \
+	$(am__append_13)
+gtk_all_c_sources = $(gtk_base_c_sources) $(gtk_dbus_built_sources) \
+	$(gtk_os_unix_c_sources) $(gtk_os_win32_c_sources) \
+	$(gtk_use_x11_c_sources) $(gtk_use_win32_c_sources) \
+	$(gtk_use_quartz_c_sources) $(gtk_use_stub_c_sources)
 gtk_dbus_built_sources = gtkdbusgenerated.c gtkdbusgenerated.h
 gtk_os_unix_c_sources = \
 	gtkcustompaperunixdialog.c	\
@@ -1772,8 +1773,7 @@ gtk_os_unix_c_sources = \
 	gtkprintoperation-unix.c	\
 	gtkprintunixdialog.c		\
         gtkprintbackend.c		\
-	gtksearchenginetracker.c        \
-	$(gtk_dbus_built_sources)
+	gtksearchenginetracker.c
 
 gtk_os_win32_c_sources = \
 	gtkprint-win32.c		\
@@ -1847,14 +1847,12 @@ gtk_built_public_sources = \
 
 # built headers that don't get installed
 gtk_built_private_headers = \
-	gtkdbusgenerated.h			\
 	gtkresources.h				\
 	gtkmarshalers.h				\
 	gtkbuiltincache.h			\
 	gtkprivatetypebuiltins.h
 
 gtk_built_sources = \
-	gtkdbusgenerated.c			\
 	gtkresources.c				\
 	gtktypebuiltins.c			\
 	gtktypefuncs.c				\
@@ -1892,6 +1890,7 @@ gtk_extra_sources = \
 #
 MAINTAINERCLEANFILES = \
 	$(gtk_built_sources) 			\
+	$(gtk_dbus_built_sources)		\
 	$(stamp_files) 				\
 	$(GENERATED_ICONS) 			\
 	stock-icons/icon-theme.cache
@@ -1939,8 +1938,12 @@ template_headers = $(COMPOSITE_TEMPLATES:.ui=.ui.h)
 #
 # setup autogeneration dependencies
 gen_sources = xgen-gdef xgen-gtbh xgen-gtic xgen-gmh xgen-gmc xgen-gmlh xgen-gmlc xgen-gtfsrc.c xgen-gtf
-CLEANFILES = $(gen_sources) $(am__append_23)
-BUILT_SOURCES = $(gtk_built_sources) stamp-icons
+CLEANFILES = $(gen_sources) $(am__append_22)
+BUILT_SOURCES = \
+	$(gtk_built_sources) \
+	$(gtk_dbus_built_sources) \
+	stamp-icons
+
 
 # target platform:
 lib_LTLIBRARIES = libgtk-3.la
@@ -1950,10 +1953,11 @@ deprecatedincludedir = $(includedir)/gtk-3.0/gtk/deprecated
 deprecatedinclude_HEADERS = $(deprecated_h_sources)
 gtkunixprintincludedir = $(includedir)/gtk-3.0/unix-print/gtk
 gtkunixprintinclude_HEADERS = $(gtk_unix_print_public_h_sources)
+nodist_libgtk_3_la_SOURCES = $(nodist_gtk_c_sources)
 libgtk_3_la_SOURCES = $(gtk_c_sources)
-libgtk_3_la_LDFLAGS = $(libtool_opts) $(am__append_16)
-libgtk_3_la_LIBADD = $(libadd) $(am__append_15)
-libgtk_3_la_DEPENDENCIES = $(deps) $(am__append_17)
+libgtk_3_la_LDFLAGS = $(libtool_opts) $(am__append_15)
+libgtk_3_la_LIBADD = $(libadd) $(am__append_14)
+libgtk_3_la_DEPENDENCIES = $(deps) $(am__append_16)
 @USE_WIN32_TRUE@libgtk_target_ldflags = $(gtk_win32_res_ldflag) $(gtk_win32_symbols)
 DEPS = libgtk-3.la $(top_builddir)/gdk/libgdk-3.la
 TEST_DEPS = $(DEPS) immodules.cache
@@ -1975,13 +1979,13 @@ LDADDS = \
 @HAVE_INTROSPECTION_TRUE@	$(gtk_base_c_sources)) \
 @HAVE_INTROSPECTION_TRUE@	gtkprintoperation-unix.c \
 @HAVE_INTROSPECTION_TRUE@	gtktypebuiltins.h gtktypebuiltins.c \
-@HAVE_INTROSPECTION_TRUE@	$(am__append_18) $(am__append_19)
+@HAVE_INTROSPECTION_TRUE@	$(am__append_17) $(am__append_18)
 @HAVE_INTROSPECTION_TRUE@Gtk_3_0_gir_SCANNERFLAGS = --add-include-path=$(top_builddir)/gdk \
 @HAVE_INTROSPECTION_TRUE@	--include-uninstalled=$(top_builddir)/gdk/Gdk-3.0.gir \
-@HAVE_INTROSPECTION_TRUE@	$(am__append_20) \
+@HAVE_INTROSPECTION_TRUE@	$(am__append_19) \
 @HAVE_INTROSPECTION_TRUE@	--c-include="gtk/gtkx.h"
 @HAVE_INTROSPECTION_TRUE@Gtk_3_0_gir_INCLUDES = Atk-1.0 \
-@HAVE_INTROSPECTION_TRUE@	$(am__append_21)
+@HAVE_INTROSPECTION_TRUE@	$(am__append_20)
 @HAVE_INTROSPECTION_TRUE@Gtk_3_0_gir_CFLAGS = \
 @HAVE_INTROSPECTION_TRUE@		$(AM_CPPFLAGS) \
 @HAVE_INTROSPECTION_TRUE@		-DGTK_TEXT_USE_INTERNAL_UNSUPPORTED_API
@@ -5294,13 +5298,6 @@ libgtk_3_la-gtksearchenginetracker.lo: gtksearchenginetracker.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgtk_3_la_CFLAGS) $(CFLAGS) -c -o libgtk_3_la-gtksearchenginetracker.lo `test -f 'gtksearchenginetracker.c' || echo '$(srcdir)/'`gtksearchenginetracker.c
 
-libgtk_3_la-gtkdbusgenerated.lo: gtkdbusgenerated.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgtk_3_la_CFLAGS) $(CFLAGS) -MT libgtk_3_la-gtkdbusgenerated.lo -MD -MP -MF $(DEPDIR)/libgtk_3_la-gtkdbusgenerated.Tpo -c -o libgtk_3_la-gtkdbusgenerated.lo `test -f 'gtkdbusgenerated.c' || echo '$(srcdir)/'`gtkdbusgenerated.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgtk_3_la-gtkdbusgenerated.Tpo $(DEPDIR)/libgtk_3_la-gtkdbusgenerated.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gtkdbusgenerated.c' object='libgtk_3_la-gtkdbusgenerated.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgtk_3_la_CFLAGS) $(CFLAGS) -c -o libgtk_3_la-gtkdbusgenerated.lo `test -f 'gtkdbusgenerated.c' || echo '$(srcdir)/'`gtkdbusgenerated.c
-
 libgtk_3_la-gtkprint-win32.lo: gtkprint-win32.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgtk_3_la_CFLAGS) $(CFLAGS) -MT libgtk_3_la-gtkprint-win32.lo -MD -MP -MF $(DEPDIR)/libgtk_3_la-gtkprint-win32.Tpo -c -o libgtk_3_la-gtkprint-win32.lo `test -f 'gtkprint-win32.c' || echo '$(srcdir)/'`gtkprint-win32.c
 @am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgtk_3_la-gtkprint-win32.Tpo $(DEPDIR)/libgtk_3_la-gtkprint-win32.Plo
@@ -5398,6 +5395,13 @@ libgtk_3_la-gtkquartz.lo: gtkquartz.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gtkquartz.c' object='libgtk_3_la-gtkquartz.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgtk_3_la_CFLAGS) $(CFLAGS) -c -o libgtk_3_la-gtkquartz.lo `test -f 'gtkquartz.c' || echo '$(srcdir)/'`gtkquartz.c
+
+libgtk_3_la-gtkdbusgenerated.lo: gtkdbusgenerated.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgtk_3_la_CFLAGS) $(CFLAGS) -MT libgtk_3_la-gtkdbusgenerated.lo -MD -MP -MF $(DEPDIR)/libgtk_3_la-gtkdbusgenerated.Tpo -c -o libgtk_3_la-gtkdbusgenerated.lo `test -f 'gtkdbusgenerated.c' || echo '$(srcdir)/'`gtkdbusgenerated.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgtk_3_la-gtkdbusgenerated.Tpo $(DEPDIR)/libgtk_3_la-gtkdbusgenerated.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gtkdbusgenerated.c' object='libgtk_3_la-gtkdbusgenerated.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgtk_3_la_CFLAGS) $(CFLAGS) -c -o libgtk_3_la-gtkdbusgenerated.lo `test -f 'gtkdbusgenerated.c' || echo '$(srcdir)/'`gtkdbusgenerated.c
 
 mostlyclean-libtool:
 	-rm -f *.lo
