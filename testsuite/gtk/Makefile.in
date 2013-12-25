@@ -762,12 +762,20 @@ keyhash_SOURCES = \
 	$(top_srcdir)/gtk/gtkprivate.h			\
 	$(NULL)
 
+GTK_GSETTINGS_SCHEMAS = \
+	$(top_srcdir)/gtk/org.gtk.Settings.ColorChooser.gschema.xml \
+	$(top_srcdir)/gtk/org.gtk.Settings.FileChooser.gschema.xml \
+	$(NULL)
+
+BUILT_SOURCES = gschemas.compiled
+CLEANFILES = gschemas.compiled
 @BUILDOPT_INSTALL_TESTS_TRUE@insttestdir = $(pkglibexecdir)/installed-tests
 @BUILDOPT_INSTALL_TESTS_TRUE@test_files = $(TEST_PROGS:=.test)
 @BUILDOPT_INSTALL_TESTS_TRUE@DISTCLEANFILES = $(test_files)
 @BUILDOPT_INSTALL_TESTS_TRUE@testmetadir = $(datadir)/installed-tests/$(PACKAGE)
 @BUILDOPT_INSTALL_TESTS_TRUE@testmeta_DATA = $(test_files)
-all: all-am
+all: $(BUILT_SOURCES)
+	$(MAKE) $(AM_MAKEFLAGS) all-am
 
 .SUFFIXES:
 .SUFFIXES: .c .lo .o .obj
@@ -1278,13 +1286,15 @@ distdir: $(DISTFILES)
 	done
 check-am: all-am
 	$(MAKE) $(AM_MAKEFLAGS) check-local
-check: check-am
+check: $(BUILT_SOURCES)
+	$(MAKE) $(AM_MAKEFLAGS) check-am
 all-am: Makefile $(PROGRAMS) $(DATA)
 installdirs:
 	for dir in "$(DESTDIR)$(insttestdir)" "$(DESTDIR)$(testmetadir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
-install: install-am
+install: $(BUILT_SOURCES)
+	$(MAKE) $(AM_MAKEFLAGS) install-am
 install-exec: install-exec-am
 install-data: install-data-am
 uninstall: uninstall-am
@@ -1306,6 +1316,7 @@ install-strip:
 mostlyclean-generic:
 
 clean-generic:
+	-test -z "$(CLEANFILES)" || rm -f $(CLEANFILES)
 
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
@@ -1315,6 +1326,7 @@ distclean-generic:
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
 	@echo "it deletes files that may require special tools to rebuild."
+	-test -z "$(BUILT_SOURCES)" || rm -f $(BUILT_SOURCES)
 clean: clean-am
 
 clean-am: clean-generic clean-insttestPROGRAMS clean-libtool \
@@ -1386,7 +1398,7 @@ ps-am:
 
 uninstall-am: uninstall-insttestPROGRAMS uninstall-testmetaDATA
 
-.MAKE: check-am install-am install-strip
+.MAKE: all check check-am install install-am install-strip
 
 .PHONY: CTAGS GTAGS TAGS all all-am check check-am check-local clean \
 	clean-generic clean-insttestPROGRAMS clean-libtool \
@@ -1461,6 +1473,13 @@ test-report perf-report full-report:	${TEST_PROGS}
 .PHONY: test test-cwd test-recurse test-report perf-report full-report
 # run make test-cwd as part of make check
 check-local: test-cwd
+
+gschemas.compiled: $(GTK_GSETTINGS_SCHEMAS)
+	$(GLIB_COMPILE_SCHEMAS) \
+		$(addprefix --schema-file=,$(GTK_GSETTINGS_SCHEMAS)) \
+		--targetdir=$(builddir)
+
+all-am: gschemas.compiled
 
 @BUILDOPT_INSTALL_TESTS_TRUE@%.test: %$(EXEEXT) Makefile
 @BUILDOPT_INSTALL_TESTS_TRUE@	$(AM_V_GEN) (echo '[Test]' > $@.tmp; \

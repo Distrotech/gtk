@@ -395,7 +395,7 @@ EXTRA_DIST = README.txt gtk+.sln gdk-win32.vcxproj \
 	gtk-ignore-broadway.props gtk-install-bin.props \
 	gtk-install-headers-data.props gtk-version-paths.props \
 	gtkprebuild-broadway.props gtkprebuild.props \
-	gtk-copy-gdk-broadway.props
+	gtk-copy-gdk-broadway.props gtk-gen-sources.props
 TEST_PROGS = 
 
 ### testing rules
