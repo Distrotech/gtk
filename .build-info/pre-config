@@ -1,3 +1,7 @@
 #!/bin/bash
 
-sed -i -e "s/\(cross_compiling=\)yes/\1no/" ../configure
+for dfile in ../gdk/gdk.def ../gtk/gtk.def;do
+  if [ -e ${dfile} ];then
+    rm ${dfile}
+  fi;
+done
