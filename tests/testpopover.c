@@ -9,6 +9,13 @@ activate (GSimpleAction *action,
 }
 
 static GActionEntry entries[] = {
+  { "cut", activate, NULL, NULL, NULL },
+  { "copy", activate, NULL, NULL, NULL },
+  { "paste", activate, NULL, NULL, NULL },
+  { "justify-left", activate, NULL, NULL, NULL },
+  { "justify-center", activate, NULL, NULL, NULL },
+  { "justify-right", activate, NULL, NULL, NULL },
+  { "justify-fill", activate, NULL, NULL, NULL },
   { "action1", activate, NULL, NULL, NULL },
   { "action2", NULL, NULL, "true", NULL },
   { "action2a", NULL, NULL, "false", NULL },

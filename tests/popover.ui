@@ -1,6 +1,24 @@
 <interface>
   <menu id="menu">
     <section>
+      <attribute name="display-hint">iconic</attribute>
+      <item>
+        <attribute name="label">Cut</attribute>
+        <attribute name="action">top.cut</attribute>
+        <attribute name="icon">edit-cut-symbolic</attribute>
+      </item>
+      <item>
+        <attribute name="label">Copy</attribute>
+        <attribute name="action">top.copy</attribute>
+        <attribute name="icon">edit-copy-symbolic</attribute>
+      </item>
+      <item>
+        <attribute name="label">Paste</attribute>
+        <attribute name="action">top.paste</attribute>
+        <attribute name="icon">edit-paste-symbolic</attribute>
+      </item>
+    </section>
+    <section>
       <item>
         <attribute name="label">No action</attribute>
         <attribute name="action">action1</attribute>
@@ -52,6 +70,29 @@
           <attribute name="label">Item 5d</attribute>
           <attribute name="action">top.action5</attribute>
         </item>
+      </section>
+      <section>
+        <attribute name="display-hint">iconic</attribute>
+      <item>
+        <attribute name="label">Left</attribute>
+        <attribute name="action">top.justify-left</attribute>
+        <attribute name="icon">format-justify-left-symbolic</attribute>
+      </item>
+      <item>
+        <attribute name="label">Center</attribute>
+        <attribute name="action">top.justify-center</attribute>
+        <attribute name="icon">format-justify-center-symbolic</attribute>
+      </item>
+      <item>
+        <attribute name="label">Right</attribute>
+        <attribute name="action">top.justify-right</attribute>
+        <attribute name="icon">format-justify-right-symbolic</attribute>
+      </item>
+      <item>
+        <attribute name="label">Fill</attribute>
+        <attribute name="action">top.justify-fill</attribute>
+        <attribute name="icon">format-justify-fill-symbolic</attribute>
+      </item>
       </section>
       <section>
         <attribute name="label">6666</attribute>
