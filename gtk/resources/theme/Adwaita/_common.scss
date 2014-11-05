@@ -140,6 +140,29 @@ $ease-out-quad: cubic-bezier(0.25, 0.46, 0.45, 0.94);
   }
 }
 
+.undershoot {
+  &.top {
+    background: linear-gradient(to top, transparentize(red,1), transparentize(red,0.5));
+    background-size: auto 100px;
+    background-position: center 100%;
+  } 
+  &.bottom {
+    background: linear-gradient(to bottom, transparentize(red,1), transparentize(red,0.5));
+    background-size: auto 100px;
+    background-position: center 0%;
+  } 
+  &.left {
+    background: linear-gradient(to left, transparentize(red,1), transparentize(red,0.5));
+    background-size: 100px auto;
+    background-position: 100% center;
+  } 
+  &.right {
+    background: linear-gradient(to right, transparentize(red,1), transparentize(red,0.5));
+    background-size: 100px auto;
+    background-position: 0% center;
+  } 
+}
+
 .label {
   &.separator {
     color: $fg_color;
