@@ -43,6 +43,7 @@
 #include "gtkwindow.h"
 #include "gtkkineticscrolling.h"
 #include "a11y/gtkscrolledwindowaccessible.h"
+#include "gtktreeprivate.h"
 
 #include <math.h>
 
@@ -1763,6 +1764,25 @@ gtk_scrolled_window_draw_scrollbars_junction (GtkScrolledWindow *scrolled_window
 }
 
 static void
+gtk_scrolled_window_inner_allocation (GtkWidget     *widget,
+                                      GtkAllocation *rect)
+{
+  GtkWidget *child;
+  gint header;
+
+  gtk_scrolled_window_relative_allocation (widget, rect);
+
+  child = gtk_bin_get_child (GTK_BIN (widget));
+  if (GTK_IS_TREE_VIEW (child) &&
+      gtk_tree_view_get_headers_visible (GTK_TREE_VIEW (child)))
+    {
+      header = _gtk_tree_view_get_header_height (GTK_TREE_VIEW (child));
+      rect->y += header;
+      rect->height -= header;
+    }
+}
+
+static void
 gtk_scrolled_window_draw_overshoot (GtkScrolledWindow *scrolled_window,
 				    cairo_t           *cr)
 {
@@ -1775,7 +1795,8 @@ gtk_scrolled_window_draw_overshoot (GtkScrolledWindow *scrolled_window,
     return;
 
   context = gtk_widget_get_style_context (widget);
-  gtk_scrolled_window_relative_allocation (widget, &rect);
+  gtk_scrolled_window_inner_allocation (widget, &rect);
+
   overshoot_x = CLAMP (overshoot_x, - MAX_OVERSHOOT_DISTANCE, MAX_OVERSHOOT_DISTANCE);
   overshoot_y = CLAMP (overshoot_y, - MAX_OVERSHOOT_DISTANCE, MAX_OVERSHOOT_DISTANCE);
 
@@ -1836,7 +1857,7 @@ gtk_scrolled_window_draw_undershoot (GtkScrolledWindow *scrolled_window,
   GtkAdjustment *adj;
 
   context = gtk_widget_get_style_context (widget);
-  gtk_scrolled_window_relative_allocation (widget, &rect);
+  gtk_scrolled_window_inner_allocation (widget, &rect);
 
   gtk_style_context_save (context);
   gtk_style_context_remove_class (context, GTK_STYLE_CLASS_FRAME);
