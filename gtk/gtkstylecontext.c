@@ -701,9 +701,8 @@ update_properties (GtkStyleContext             *context,
   gtk_widget_path_free (path);
 }
 
-static void
+static GtkCssStyle *
 build_properties (GtkStyleContext             *context,
-                  GtkCssStyle                 *style,
                   const GtkCssNodeDeclaration *decl,
                   GtkCssChange                *out_change)
 {
@@ -711,8 +710,11 @@ build_properties (GtkStyleContext             *context,
   GtkCssMatcher matcher;
   GtkWidgetPath *path;
   GtkCssLookup *lookup;
+  GtkCssStyle *style;
 
   priv = context->priv;
+
+  style = gtk_css_static_style_new ();
 
   path = create_query_path (context, decl);
   lookup = _gtk_css_lookup_new (NULL);
@@ -731,6 +733,8 @@ build_properties (GtkStyleContext             *context,
 
   _gtk_css_lookup_free (lookup);
   gtk_widget_path_free (path);
+
+  return style;
 }
 
 static GtkCssStyle *
@@ -758,18 +762,15 @@ style_values_lookup (GtkStyleContext *context)
           return values;
         }
 
-      values = gtk_css_static_style_new ();
+      values = build_properties (context, info->decl, NULL);
       g_hash_table_insert (priv->style_values,
                            gtk_css_node_declaration_ref (info->decl),
                            g_object_ref (values));
 
-      build_properties (context, values, info->decl, NULL);
     }
   else
     {
-      values = gtk_css_static_style_new ();
-
-      build_properties (context, values, info->decl, &priv->relevant_changes);
+      values = build_properties (context, info->decl, &priv->relevant_changes);
       /* These flags are always relevant */
       priv->relevant_changes |= GTK_CSS_CHANGE_SOURCE;
     }
@@ -795,8 +796,7 @@ style_values_lookup_for_state (GtkStyleContext *context,
 
   decl = gtk_css_node_declaration_ref (context->priv->info->decl);
   gtk_css_node_declaration_set_state (&decl, state);
-  values = gtk_css_static_style_new ();
-  build_properties (context, values, decl, NULL);
+  values = build_properties (context, decl, NULL);
   gtk_css_node_declaration_unref (decl);
 
   return values;
