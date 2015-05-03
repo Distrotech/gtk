@@ -88,6 +88,7 @@ noinst_PROGRAMS =  $(TEST_PROGS)	\
 	testlist			\
 	testlist2			\
 	testlist3			\
+	testlistmodel			\
 	testlevelbar			\
 	testlockbutton			\
 	testmenubutton			\
