@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <template class="SidebarRow" parent="GtkListBoxRow">
+    <property name="visible">True</property>
+    <property name="margin-top">1</property>
+    <property name="margin-bottom">1</property>
+    <child>
+      <object class="GtkBox">
+        <property name="orientation">horizontal</property>
+        <property name="visible">True</property>
+        <child>
+          <object class="GtkImage" id="icon_widget">
+            <property name="visible">True</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkLabel" id="label_widget">
+            <property name="visible">True</property>
+            <property name="margin-start">10</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkButton" id="eject_button">
+            <property name="visible">True</property>
+            <property name="hexpand">True</property>
+            <property name="halign">end</property>
+            <property name="valign">center</property>
+            <signal name="clicked" handler="on_eject_button_clicked" swapped="no" />
+            <child>
+              <object class="GtkImage">
+                <property name="visible">True</property>
+                <property name="icon_name">media-eject-symbolic</property>
+                <property name="icon_size">1</property>
+              </object>
+            </child>
+            <style>
+              <class name="image-button"/>
+              <class name="sidebar-button"/>
+            </style>
+          </object>
+        </child>
+      </object>
+    </child>
+  </template>
+</interface>

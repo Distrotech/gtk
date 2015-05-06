@@ -1085,7 +1085,8 @@ templates =				\
 	ui/gtksearchbar.ui		\
 	ui/gtkscalebutton.ui		\
 	ui/gtkstatusbar.ui		\
-	ui/gtkvolumebutton.ui
+	ui/gtkvolumebutton.ui		\
+	ui/sidebarrow.ui
 
 #
 # rules to generate built sources
