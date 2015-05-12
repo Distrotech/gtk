@@ -2880,46 +2880,20 @@ GtkFileChooserDialog {
   }
 }
 
-// Places sidebar is a special case, since the view here have to look like chrome not content, so we override text color
-GtkPlacesSidebar.sidebar .view {
+GtkPlacesSidebar.sidebar {
 
-  color: $fg_color;
-  background-color: transparent;
+  $_placesidebar_icons_opacity: 0.6;
 
-  .separator,
-  .separator:backdrop { @extend .separator; }
-
-  .image { // icons color
-    color: mix($fg_color, $sidebar_bg_color, 70%);
-
-    &:selected {
-      color: mix($selected_fg_color, $selected_bg_color, 90%);
-
-      &:backdrop { color: mix($backdrop_selected_fg_color, $selected_bg_color, 90%); }
-    }
-
-    &:insensitive { color: mix($insensitive_fg_color, $sidebar_bg_color, 70%); }
-
-    &:backdrop {
-      color: mix($backdrop_fg_color, $sidebar_bg_color, 70%);
-
-      &:insensitive { color: mix($backdrop_insensitive_color, $sidebar_bg_color, 70%); }
-    }
-  }
-
-  &:insensitive { color: $insensitive_fg_color; }
-
-  &:backdrop {
-    color: $backdrop_fg_color;
-
-    &:insensitive { color: $backdrop_insensitive_color; }
-  }
-
-  &:selected {
-    @extend %selected_items;
+  SidebarRow > GtkBox > GtkImage { opacity: $_placesidebar_icons_opacity; } // dim the device icons
+  @at-root .sidebar-button.button { // @at-root needded to not change the specificity making button styling inheritance broken
+                                    // so istead of "GtkPlacesSidebar.sidebar .sidebar-button.button" [specificity 0,0,3,1]
+                                    // the extended selector ".sidebar-button.button" [specificity 0,0,2,0]
+    @extend .button.flat;
+    border-radius: 100%;
+    &:not(:hover):not(:active) > GtkImage,
+    &:backdrop > GtkImage { opacity: $_placesidebar_icons_opacity };
   }
 }
-
 
 .sidebar-item {
   padding: 10px 4px;
