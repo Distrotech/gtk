@@ -2237,6 +2237,20 @@ places_sidebar_show_enter_location_cb (GtkPlacesSidebar *sidebar,
   operation_mode_set (impl, OPERATION_MODE_ENTER_LOCATION);
 }
 
+/* Callback used when the places sidebar asks us to show other locations */
+static void
+places_sidebar_show_other_locations_cb (GtkPlacesSidebar     *sidebar,
+                                        GtkFileChooserWidget *impl)
+{
+  GtkFileChooserWidgetPrivate *priv = impl->priv;
+
+  gtk_stack_set_visible_child_name (GTK_STACK (priv->browse_files_stack), "other_locations");
+
+  priv->preview_widget_active = FALSE;
+  gtk_widget_hide (GTK_WIDGET (priv->browse_header_box));
+  update_preview_widget_visibility (impl);
+}
+
 static void
 location_toggle_popup_handler (GtkFileChooserWidget *impl)
 {
@@ -7551,6 +7565,7 @@ gtk_file_chooser_widget_class_init (GtkFileChooserWidgetClass *class)
   gtk_widget_class_bind_template_callback (widget_class, places_sidebar_open_location_cb);
   gtk_widget_class_bind_template_callback (widget_class, places_sidebar_show_error_message_cb);
   gtk_widget_class_bind_template_callback (widget_class, places_sidebar_show_enter_location_cb);
+  gtk_widget_class_bind_template_callback (widget_class, places_sidebar_show_other_locations_cb);
   gtk_widget_class_bind_template_callback (widget_class, search_entry_activate_cb);
   gtk_widget_class_bind_template_callback (widget_class, search_entry_stop_cb);
   gtk_widget_class_bind_template_callback (widget_class, new_folder_popover_active);
