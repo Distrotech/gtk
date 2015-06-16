@@ -236,6 +236,7 @@ gtk_public_h_sources = 		\
 	gtkpaned.h		\
 	gtkpapersize.h		\
 	gtkplacessidebar.h	\
+	gtkplacesview.h		\
 	gtkplug.h		\
 	gtkpopover.h		\
 	gtkpopovermenu.h	\
@@ -475,6 +476,7 @@ gtk_private_h_sources =		\
 	gtkpango.h		\
 	gtkpathbar.h		\
 	gtkplacessidebarprivate.h	\
+	gtkplacesviewrow.h	\
 	gtkpopoverprivate.h	\
 	gtkprintoperation-private.h \
 	gtkprintutils.h		\
@@ -754,6 +756,8 @@ gtk_base_c_sources = 		\
 	gtkpapersize.c		\
 	gtkpathbar.c		\
 	gtkplacessidebar.c	\
+	gtkplacesview.c		\
+	gtkplacesviewrow.c	\
 	gtkprintcontext.c	\
 	gtkprintoperation.c	\
 	gtkprintoperationpreview.c \
@@ -1084,6 +1088,8 @@ templates =				\
 	ui/gtkmessagedialog.ui	\
 	ui/gtkpagesetupunixdialog.ui	\
 	ui/gtkpathbar.ui		\
+	ui/gtkplacesview.ui		\
+	ui/gtkplacesviewrow.ui		\
 	ui/gtkprintunixdialog.ui	\
 	ui/gtkrecentchooserdefault.ui	\
 	ui/gtksearchbar.ui		\
