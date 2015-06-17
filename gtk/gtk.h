@@ -71,6 +71,8 @@
 #include <gtk/gtkcheckbutton.h>
 #include <gtk/gtkcheckmenuitem.h>
 #include <gtk/gtkclipboard.h>
+#include <gtk/gtkcloudprovider.h>
+#include <gtk/gtkcloudprovidermanager.h>
 #include <gtk/gtkcolorbutton.h>
 #include <gtk/gtkcolorchooser.h>
 #include <gtk/gtkcolorchooserdialog.h>

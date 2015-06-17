@@ -23,6 +23,7 @@
 #include "gtktypebuiltins.h"
 #include "gtkprivate.h"
 #include "gtkmarshalers.h"
+#include "gtkcloudprovidermanager.h"
 
 
 /**
@@ -181,7 +182,7 @@ static void
 gtk_file_chooser_default_init (GtkFileChooserInterface *iface)
 {
   GType iface_type = G_TYPE_FROM_INTERFACE (iface);
-
+  gtk_cloud_provider_manager_dup_singleton ();
   /**
    * GtkFileChooser::current-folder-changed:
    * @chooser: the object which received the signal.

@@ -2631,6 +2631,14 @@ gtk_paned_get_type
 </SECTION>
 
 <SECTION>
+<FILE>gtkcloudprovidermanager</FILE>
+<TITLE>GtkCloudProviderManager</TITLE>
+GtkCloudProviderManager
+gtk_cloud_provider_manager_dup_singleton
+gtk_cloud_provider_manager_get_providers
+</SECTION>
+
+<SECTION>
 <FILE>gtkplacessidebar</FILE>
 <TITLE>GtkPlacesSidebar</TITLE>
 GtkPlacesSidebar

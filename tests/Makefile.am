@@ -30,6 +30,18 @@ if OS_LINUX
 fontconfig_programs = testfontchooserdialog
 endif
 
+cloudproviderdir = $(datadir)/gtk+/cloud-providers
+dist_cloudprovider_DATA = org.gtk.CloudProviderServerExample.ini
+
+servicedir = $(datadir)/dbus-1/services
+service_in_files = org.gtk.CloudProviderServerExample.service.in
+service_DATA = $(service_in_files:.service.in=.service)
+
+org.gtk.CloudProviderServerExample.service: org.gtk.CloudProviderServerExample.service.in
+	$(AM_V_GEN)	\
+		[ -d $(@D) ] || $(mkdir_p) $(@D) ; \
+		sed -e "s|\@bindir\@|$(bindir)|" $< > $@.tmp && mv $@.tmp $@
+
 noinst_PROGRAMS =  $(TEST_PROGS)	\
 	overlayscroll			\
 	syncscroll			\
@@ -165,6 +177,8 @@ noinst_PROGRAMS =  $(TEST_PROGS)	\
 	testactionbar			\
 	testwindowsize			\
 	testpopover			\
+	testcloudproviderserver		\
+	testcloudproviderclient		\
 	gdkgears			\
 	$(NULL)
 
@@ -304,6 +318,8 @@ teststack_DEPENDENCIES = $(TEST_DEPS)
 testrevealer_DEPENDENCIES = $(TEST_DEPS)
 testtitlebar_DEPENDENCIES = $(TEST_DEPS)
 testwindowsize_DEPENDENCIES = $(TEST_DEPS)
+testcloudproviderserver_DEPENDENCIES = $(TEST_DEPS)
+testcloudproviderclient_DEPENDENCIES = $(TEST_DEPS)
 
 animated_resizing_SOURCES = 	\
 	animated-resizing.c	\
@@ -522,6 +538,10 @@ testrevealer_SOURCES = testrevealer.c
 testtitlebar_SOURCES = testtitlebar.c
 
 testwindowsize_SOURCES = testwindowsize.c
+
+testcloudproviderserver_SOURCES = testcloudproviderserver.c
+
+testcloudproviderclient_SOURCES = testcloudproviderclient.c
 
 gdkgears_SOURCES =	\
 	gdkgears.c	\

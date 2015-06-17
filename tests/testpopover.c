@@ -145,6 +145,7 @@ main (int argc, char *argv[])
   gtk_grid_attach (GTK_GRID (grid), label , 1, 5, 1, 1);
   gtk_grid_attach (GTK_GRID (grid), combo, 2, 5, 1, 1);
 
+  gtk_cloud_provider_manager_dup_singleton ();
 
   gtk_widget_show_all (win);
 
