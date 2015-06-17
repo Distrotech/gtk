@@ -165,10 +165,7 @@ server_list_add_server (GFile *file)
   bookmarks = server_list_load ();
 
   if (!bookmarks)
-    {
-      g_message ("bookmarks is NULL");
-      return;
-    }
+    return;
 
   uri = g_file_get_uri (file);
 
@@ -178,8 +175,6 @@ server_list_add_server (GFile *file)
                             NULL,
                             &error);
   title = g_file_info_get_attribute_as_string (info, G_FILE_ATTRIBUTE_STANDARD_DISPLAY_NAME);
-
-  g_message ("adding server '%s'", title);
 
   g_bookmark_file_set_title (bookmarks, uri, title);
 	g_bookmark_file_set_visited (bookmarks, uri, -1);
@@ -726,7 +721,6 @@ mount_location (GtkPlacesView *view,
 
   /* unref operation here - g_file_mount_enclosing_volume() does ref for itself */
   g_object_unref (operation);
-  g_object_unref (priv->connection_cancellable);
 }
 
 static void
@@ -756,7 +750,6 @@ mount_volume (GtkPlacesView *view,
 
   /* unref operation here - g_file_mount_enclosing_volume() does ref for itself */
   g_object_unref (operation);
-  g_object_unref (priv->connection_cancellable);
 }
 
 static void
