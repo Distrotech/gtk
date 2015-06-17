@@ -26,6 +26,26 @@
 #include "gtkplacesviewrow.h"
 #include "gtktypebuiltins.h"
 
+/**
+ * SECTION:gtkplacesview
+ * @Short_description: Widget that displays permanent drives and manages mounted networks
+ * @Title: GtkPlacesView
+ * @See_also: #GtkFileChooser
+ *
+ * #GtkPlacesView is a stock widget that displays a list permanent drives such
+ * as harddisk partitions and networks.  #GtkPlacesView does not monitor
+ * removable devices.
+ *
+ * The places view displays drives and networks, and will automatically mount
+ * them when the user selects them. Network addresses are stored even if they
+ * fail to connect. When the connection is successfull, the connected network
+ * is shown at the network list.
+ *
+ * To make use of the places view, an application at least needs to connect
+ * to the #GtkPlacesView::open-location signal.  This is emitted when the user
+ * selects a location to open in the view.
+ */
+
 struct _GtkPlacesViewPrivate
 {
   GVolumeMonitor                *volume_monitor;
