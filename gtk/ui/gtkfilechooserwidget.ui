@@ -248,6 +248,7 @@
                           <object class="GtkPlacesView" id="other_files_view">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
+                            <property name="local_only">True</property>
                             <signal name="open-location" handler="places_sidebar_open_location_cb" swapped="no"/>
                           </object>
                           <packing>
