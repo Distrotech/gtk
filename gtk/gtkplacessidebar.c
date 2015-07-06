@@ -158,6 +158,7 @@ struct _GtkPlacesSidebar {
   guint show_desktop           : 1;
   guint show_connect_to_server : 1;
   guint show_enter_location    : 1;
+  guint show_other_locations   : 1;
   guint show_trash             : 1;
   guint local_only             : 1;
 };
@@ -187,6 +188,8 @@ struct _GtkPlacesSidebarClass {
                                       GList              *source_file_list,
                                       GdkDragAction       action);
   void    (* show_enter_location)    (GtkPlacesSidebar   *sidebar);
+
+  void    (* show_other_locations)   (GtkPlacesSidebar   *sidebar);
 };
 
 enum {
@@ -198,6 +201,7 @@ enum {
   DRAG_ACTION_REQUESTED,
   DRAG_ACTION_ASK,
   DRAG_PERFORM_DROP,
+  SHOW_OTHER_LOCATIONS,
   LAST_SIGNAL
 };
 
@@ -210,6 +214,7 @@ enum {
   PROP_SHOW_ENTER_LOCATION,
   PROP_SHOW_TRASH,
   PROP_LOCAL_ONLY,
+  PROP_SHOW_OTHER_LOCATIONS,
   NUM_PROPERTIES
 };
 
@@ -221,6 +226,7 @@ enum {
 #define ICON_NAME_NETWORK  "network-workgroup-symbolic"
 #define ICON_NAME_NETWORK_SERVER "network-server-symbolic"
 #define ICON_NAME_FOLDER_NETWORK "folder-remote-symbolic"
+#define ICON_NAME_OTHER_LOCATIONS "list-add-symbolic"
 
 #define ICON_NAME_FOLDER                "folder-symbolic"
 #define ICON_NAME_FOLDER_DESKTOP  "user-desktop-symbolic"
@@ -312,6 +318,12 @@ static void
 emit_show_enter_location (GtkPlacesSidebar *sidebar)
 {
   g_signal_emit (sidebar, places_sidebar_signals[SHOW_ENTER_LOCATION], 0);
+}
+
+static void
+emit_show_other_locations (GtkPlacesSidebar *sidebar)
+{
+  g_signal_emit (sidebar, places_sidebar_signals[SHOW_OTHER_LOCATIONS], 0);
 }
 
 static GdkDragAction
@@ -928,6 +940,9 @@ update_places (GtkPlacesSidebar *sidebar)
     {
       drive = l->data;
 
+      if (!g_drive_can_eject (drive))
+        continue;
+
       volumes = g_drive_get_volumes (drive);
       if (volumes != NULL)
         {
@@ -955,7 +970,7 @@ update_places (GtkPlacesSidebar *sidebar)
                   tooltip = g_file_get_parse_name (root);
 
                   add_place (sidebar, PLACES_MOUNTED_VOLUME,
-                             SECTION_DEVICES,
+                             SECTION_MOUNTS,
                              name, icon, mount_uri,
                              drive, volume, mount, 0, tooltip);
                   g_object_unref (root);
@@ -980,16 +995,15 @@ update_places (GtkPlacesSidebar *sidebar)
                   tooltip = g_strdup_printf (_("Mount and open “%s”"), name);
 
                   add_place (sidebar, PLACES_MOUNTED_VOLUME,
-                             SECTION_DEVICES,
+                             SECTION_MOUNTS,
                              name, icon, NULL,
                              drive, volume, NULL, 0, tooltip);
                   g_object_unref (icon);
                   g_free (name);
                   g_free (tooltip);
                 }
-              g_object_unref (volume);
             }
-          g_list_free (volumes);
+          g_list_free_full (volumes, g_object_unref);
         }
       else
         {
@@ -1008,7 +1022,7 @@ update_places (GtkPlacesSidebar *sidebar)
               tooltip = g_strdup_printf (_("Mount and open “%s”"), name);
 
               add_place (sidebar, PLACES_BUILT_IN,
-                         SECTION_DEVICES,
+                         SECTION_MOUNTS,
                          name, icon, NULL,
                          drive, NULL, NULL, 0, tooltip);
               g_object_unref (icon);
@@ -1016,77 +1030,8 @@ update_places (GtkPlacesSidebar *sidebar)
               g_free (name);
             }
         }
-      g_object_unref (drive);
     }
-  g_list_free (drives);
-
-  /* add all volumes that is not associated with a drive */
-  volumes = g_volume_monitor_get_volumes (sidebar->volume_monitor);
-  for (l = volumes; l != NULL; l = l->next)
-    {
-      volume = l->data;
-      drive = g_volume_get_drive (volume);
-      if (drive != NULL)
-        {
-          g_object_unref (volume);
-          g_object_unref (drive);
-          continue;
-        }
-
-      identifier = g_volume_get_identifier (volume, G_VOLUME_IDENTIFIER_KIND_CLASS);
-
-      if (g_strcmp0 (identifier, "network") == 0)
-        {
-          g_free (identifier);
-          network_volumes = g_list_prepend (network_volumes, volume);
-          continue;
-        }
-      g_free (identifier);
-
-      mount = g_volume_get_mount (volume);
-      if (mount != NULL)
-        {
-          icon = g_mount_get_symbolic_icon (mount);
-          root = g_mount_get_default_location (mount);
-          mount_uri = g_file_get_uri (root);
-          tooltip = g_file_get_parse_name (root);
-          name = g_mount_get_name (mount);
-          add_place (sidebar, PLACES_MOUNTED_VOLUME,
-                     SECTION_DEVICES,
-                     name, icon, mount_uri,
-                     NULL, volume, mount, 0, tooltip);
-          g_object_unref (mount);
-          g_object_unref (root);
-          g_object_unref (icon);
-          g_free (name);
-          g_free (tooltip);
-          g_free (mount_uri);
-        }
-      else
-        {
-          /* see comment above in why we add an icon for an unmounted mountable volume */
-          icon = g_volume_get_symbolic_icon (volume);
-          name = g_volume_get_name (volume);
-          add_place (sidebar, PLACES_MOUNTED_VOLUME,
-                     SECTION_DEVICES,
-                     name, icon, NULL,
-                     NULL, volume, NULL, 0, name);
-          g_object_unref (icon);
-          g_free (name);
-        }
-      g_object_unref (volume);
-    }
-  g_list_free (volumes);
-
-  /* file system root */
-  mount_uri = "file:///"; /* No need to strdup */
-  icon = g_themed_icon_new_with_default_fallbacks (ICON_NAME_FILESYSTEM);
-  add_place (sidebar, PLACES_BUILT_IN,
-             SECTION_DEVICES,
-             sidebar->hostname, icon, mount_uri,
-             NULL, NULL, NULL, 0,
-             _("Open the contents of the file system"));
-  g_object_unref (icon);
+  g_list_free_full (drives, g_object_unref);
 
   /* add mounts that has no volume (/etc/mtab mounts, ftp, sftp,...) */
   mounts = g_volume_monitor_get_mounts (sidebar->volume_monitor);
@@ -1179,26 +1124,6 @@ update_places (GtkPlacesSidebar *sidebar)
   /* network */
   if (!sidebar->local_only)
     {
-      mount_uri = "network:///";
-      icon = g_themed_icon_new_with_default_fallbacks (ICON_NAME_NETWORK);
-      add_place (sidebar, PLACES_BUILT_IN,
-                 SECTION_NETWORK,
-                 _("Browse Network"), icon, mount_uri,
-                 NULL, NULL, NULL, 0,
-                 _("Browse the contents of the network"));
-      g_object_unref (icon);
-
-      if (sidebar->show_connect_to_server)
-        {
-          icon = g_themed_icon_new_with_default_fallbacks (ICON_NAME_NETWORK_SERVER);
-          add_place (sidebar, PLACES_CONNECT_TO_SERVER,
-                     SECTION_NETWORK,
-                     _("Connect to Server"), icon, NULL,
-                     NULL, NULL, NULL, 0,
-                     _("Connect to a network server address"));
-          g_object_unref (icon);
-        }
-
       network_volumes = g_list_reverse (network_volumes);
       for (l = network_volumes; l != NULL; l = l->next)
         {
@@ -1217,12 +1142,23 @@ update_places (GtkPlacesSidebar *sidebar)
               tooltip = g_strdup_printf (_("Mount and open “%s”"), name);
 
               add_place (sidebar, PLACES_MOUNTED_VOLUME,
-                         SECTION_NETWORK,
+                         SECTION_MOUNTS,
                          name, icon, NULL,
                          NULL, volume, NULL, 0, tooltip);
               g_object_unref (icon);
               g_free (name);
               g_free (tooltip);
+            }
+
+          if (sidebar->show_connect_to_server)
+            {
+              icon = g_themed_icon_new_with_default_fallbacks (ICON_NAME_NETWORK_SERVER);
+              add_place (sidebar, PLACES_CONNECT_TO_SERVER,
+                         SECTION_MOUNTS,
+                         _("Connect to Server"), icon, NULL,
+                         NULL, NULL, NULL, 0,
+                         _("Connect to a network server address"));
+              g_object_unref (icon);
             }
         }
 
@@ -1236,7 +1172,7 @@ update_places (GtkPlacesSidebar *sidebar)
           name = g_mount_get_name (mount);
           tooltip = g_file_get_parse_name (root);
           add_place (sidebar, PLACES_MOUNTED_VOLUME,
-                     SECTION_NETWORK,
+                     SECTION_MOUNTS,
                      name, icon, mount_uri,
                      NULL, NULL, mount, 0, tooltip);
           g_object_unref (root);
@@ -1249,6 +1185,19 @@ update_places (GtkPlacesSidebar *sidebar)
 
   g_list_free_full (network_volumes, g_object_unref);
   g_list_free_full (network_mounts, g_object_unref);
+
+  /* Other locations */
+  if (sidebar->show_other_locations)
+    {
+      icon = g_themed_icon_new_with_default_fallbacks (ICON_NAME_OTHER_LOCATIONS);
+
+      add_place (sidebar, PLACES_OTHER_LOCATIONS,
+                 SECTION_OTHER_LOCATIONS,
+                 _("Other Locations"), icon, "other-locations://",
+                 NULL, NULL, NULL, 0, _("Show other locations"));
+
+      g_object_unref (icon);
+    }
 
   gtk_widget_show_all (GTK_WIDGET (sidebar));
   /* We want this hidden by default, but need to do it after the show_all call */
@@ -2225,7 +2174,9 @@ open_row (GtkSidebarRow      *row,
                 "volume", &volume,
                 NULL);
 
-  if (uri != NULL)
+  if (place_type == PLACES_OTHER_LOCATIONS)
+    emit_show_other_locations (sidebar);
+  else if (uri != NULL)
     open_uri (sidebar, uri, open_flags);
   else if (place_type == PLACES_CONNECT_TO_SERVER)
     emit_show_connect_to_server (sidebar);
@@ -3845,11 +3796,17 @@ gtk_places_sidebar_set_property (GObject      *obj,
       break;
 
     case PROP_SHOW_CONNECT_TO_SERVER:
+G_GNUC_BEGIN_IGNORE_DEPRECATIONS
       gtk_places_sidebar_set_show_connect_to_server (sidebar, g_value_get_boolean (value));
+G_GNUC_END_IGNORE_DEPRECATIONS
       break;
 
     case PROP_SHOW_ENTER_LOCATION:
       gtk_places_sidebar_set_show_enter_location (sidebar, g_value_get_boolean (value));
+      break;
+
+    case PROP_SHOW_OTHER_LOCATIONS:
+      gtk_places_sidebar_set_show_other_locations (sidebar, g_value_get_boolean (value));
       break;
 
     case PROP_SHOW_TRASH:
@@ -3893,11 +3850,17 @@ gtk_places_sidebar_get_property (GObject    *obj,
       break;
 
     case PROP_SHOW_CONNECT_TO_SERVER:
+G_GNUC_BEGIN_IGNORE_DEPRECATIONS
       g_value_set_boolean (value, gtk_places_sidebar_get_show_connect_to_server (sidebar));
+G_GNUC_END_IGNORE_DEPRECATIONS
       break;
 
     case PROP_SHOW_ENTER_LOCATION:
       g_value_set_boolean (value, gtk_places_sidebar_get_show_enter_location (sidebar));
+      break;
+
+    case PROP_SHOW_OTHER_LOCATIONS:
+      g_value_set_boolean (value, gtk_places_sidebar_get_show_other_locations (sidebar));
       break;
 
     case PROP_SHOW_TRASH:
@@ -4096,7 +4059,8 @@ gtk_places_sidebar_class_init (GtkPlacesSidebarClass *class)
    * a URL like "sftp://ftp.example.com".  It is up to the application to create
    * the corresponding mount by using, for example, g_file_mount_enclosing_volume().
    *
-   * Since: 3.10
+   * Deprecated: 3.18: use #GtkPlacesSidebar::show-other-locations property to
+   * connect to network servers.
    */
   places_sidebar_signals [SHOW_CONNECT_TO_SERVER] =
           g_signal_new (I_("show-connect-to-server"),
@@ -4214,6 +4178,28 @@ gtk_places_sidebar_class_init (GtkPlacesSidebarClass *class)
                         G_TYPE_POINTER, /* GList of GFile */
                         G_TYPE_INT);
 
+  /**
+   * GtkPlacesSidebar::show-other-locations:
+   * @sidebar: the object which received the signal.
+   *
+   * The places sidebar emits this signal when it needs the calling
+   * application to present an way to show other locations e.g. drives
+   * and network access points.
+   * For example, the application may bring up a page showing the volumes
+   * and discovered network addresses.
+   *
+   * Since: 3.18
+   */
+  places_sidebar_signals [SHOW_OTHER_LOCATIONS] =
+          g_signal_new (I_("show-other-locations"),
+                        G_OBJECT_CLASS_TYPE (gobject_class),
+                        G_SIGNAL_RUN_FIRST,
+                        G_STRUCT_OFFSET (GtkPlacesSidebarClass, show_other_locations),
+                        NULL, NULL,
+                        _gtk_marshal_VOID__VOID,
+                        G_TYPE_NONE, 0);
+
+
   properties[PROP_LOCATION] =
           g_param_spec_object ("location",
                                P_("Location to Select"),
@@ -4244,7 +4230,7 @@ gtk_places_sidebar_class_init (GtkPlacesSidebarClass *class)
                                 P_("Show 'Connect to Server'"),
                                 P_("Whether the sidebar includes a builtin shortcut to a 'Connect to server' dialog"),
                                 FALSE,
-                                G_PARAM_READWRITE);
+                                G_PARAM_READWRITE | G_PARAM_DEPRECATED);
   properties[PROP_SHOW_ENTER_LOCATION] =
           g_param_spec_boolean ("show-enter-location",
                                 P_("Show 'Enter Location'"),
@@ -4262,6 +4248,12 @@ gtk_places_sidebar_class_init (GtkPlacesSidebarClass *class)
                                 P_("Show 'Trash'"),
                                 P_("Whether the sidebar includes a builtin shortcut to  the Trash location"),
                                 TRUE,
+                                G_PARAM_READWRITE);
+  properties[PROP_SHOW_OTHER_LOCATIONS] =
+          g_param_spec_boolean ("show-other-locations",
+                                P_("Show 'Other locations'"),
+                                P_("Whether the sidebar includes an item to show customly external locations"),
+                                FALSE,
                                 G_PARAM_READWRITE);
 
   g_object_class_install_properties (gobject_class, NUM_PROPERTIES, properties);
@@ -4592,7 +4584,7 @@ gtk_places_sidebar_set_show_connect_to_server (GtkPlacesSidebar *sidebar,
  *
  * Returns: %TRUE if the sidebar will display a “Connect to Server” item.
  *
- * Since: 3.10
+ * Deprecated: 3.18: use gtk_places_sidebar_get_show_other_locations() instead.
  */
 gboolean
 gtk_places_sidebar_get_show_connect_to_server (GtkPlacesSidebar *sidebar)
@@ -4611,7 +4603,7 @@ gtk_places_sidebar_get_show_connect_to_server (GtkPlacesSidebar *sidebar)
  * An application may want to turn this on if it implements a way for the user to connect
  * to network servers directly.
  *
- * Since: 3.14
+ * Deprecated: 3.18: use gtk_places_sidebar_set_show_other_locations() instead.
  */
 void
 gtk_places_sidebar_set_show_enter_location (GtkPlacesSidebar *sidebar,
@@ -4644,6 +4636,51 @@ gtk_places_sidebar_get_show_enter_location (GtkPlacesSidebar *sidebar)
   g_return_val_if_fail (GTK_IS_PLACES_SIDEBAR (sidebar), FALSE);
 
   return sidebar->show_enter_location;
+}
+
+/**
+ * gtk_places_sidebar_set_show_other_locations:
+ * @sidebar: a places sidebar
+ * @show_other_locations: whether to show an item for the Other Locations view
+ *
+ * Sets whether the @sidebar should show an item for the application to show an Other Locations
+ * view; this is off by default.
+ * An application may want to turn this on if it implements a way for the user to see and interact
+ * to drives and network servers directly.
+ *
+ * Since: 3.18
+ */
+void
+gtk_places_sidebar_set_show_other_locations (GtkPlacesSidebar *sidebar,
+                                             gboolean          show_other_locations)
+{
+  g_return_if_fail (GTK_IS_PLACES_SIDEBAR (sidebar));
+
+  show_other_locations = !!show_other_locations;
+  if (sidebar->show_other_locations != show_other_locations)
+    {
+      sidebar->show_other_locations = show_other_locations;
+      update_places (sidebar);
+      g_object_notify_by_pspec (G_OBJECT (sidebar), properties[PROP_SHOW_OTHER_LOCATIONS]);
+    }
+  }
+
+/**
+ * gtk_places_sidebar_get_show_other_locations:
+ * @sidebar: a places sidebar
+ *
+ * Returns the value previously set with gtk_places_sidebar_set_show_other_locations()
+ *
+ * Returns: %TRUE if the sidebar will display an “Other Locations” item.
+ *
+ * Since: 3.18
+ */
+gboolean
+gtk_places_sidebar_get_show_other_locations (GtkPlacesSidebar *sidebar)
+{
+  g_return_val_if_fail (GTK_IS_PLACES_SIDEBAR (sidebar), FALSE);
+
+  return sidebar->show_other_locations;
 }
 
 /**
