@@ -72,7 +72,6 @@ noinst_PROGRAMS =  $(TEST_PROGS)	\
 	testfontselection		\
 	testfontselectiondialog		\
 	testfontchooser			\
-	testfontoptions			\
 	$(fontconfig_programs)		\
 	testframe			\
 	testfullscreen			\
@@ -106,6 +105,7 @@ noinst_PROGRAMS =  $(TEST_PROGS)	\
 	testorientable			\
 	testoverlay			\
 	testoverlaystyleclass		\
+	testplacesview			\
 	testprint			\
 	testrecentchooser 		\
 	testrecentchoosermenu		\
@@ -226,7 +226,6 @@ testfontselection_DEPENDENCIES = $(TEST_DEPS)
 testfontselectiondialog_DEPENDENCIES = $(TEST_DEPS)
 testfontchooser_DEPENDENCIES = $(TEST_DEPS)
 testfontchooserdialog_DEPENDENCIES = $(TEST_DEPS)
-testfontoptions_DEPENDENCIES = $(TEST_DEPS)
 testframe_DEPENDENCIES = $(TEST_DEPS)
 testgeometry_DEPENDENCIES = $(TEST_DEPS)
 testgiconpixbuf = $(TEST_DEPS)
@@ -253,6 +252,7 @@ testappchooserbutton_DEPENDENCIES = $(TEST_DEPS)
 testorientable_DEPENDENCIES = $(TEST_DEPS)
 testoverlay_DEPENDENCIES = $(TEST_DEPS)
 testoverlaystyleclass_DEPENDENCIES = $(TEST_DEPS)
+testplacesview_DEPENDENCIES = $(TEST_DEPS)
 testprint_DEPENDENCIES = $(TEST_DEPS)
 testrecentchooser_DEPENDENCIES = $(TEST_DEPS)
 testrecentchoosermenu_DEPENDENCIES = $(TEST_DEPS)
@@ -367,9 +367,6 @@ testfontchooser_SOURCES = \
 testfontchooserdialog_SOURCES = \
 	testfontchooserdialog.c
 
-testfontoptions_SOURCES = \
-	testfontoptions.c
-
 testgrid_SOURCES =	\
 	testgrid.c
 
@@ -396,6 +393,9 @@ testtoolbar_SOURCES =	\
 
 testmenubutton_SOURCES =	\
 	testmenubutton.c
+
+testplacesview_SOURCES =	\
+	testplacesview.c
 
 testprint_SOURCES =    	\
 	testprint.c		\
