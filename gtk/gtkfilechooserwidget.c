@@ -56,7 +56,7 @@
 #include "gtkpathbar.h"
 #include "gtkplacessidebar.h"
 #include "gtkplacessidebarprivate.h"
-#include "gtkplacesview.h"
+#include "gtkplacesviewprivate.h"
 #include "gtkprivate.h"
 #include "gtkrecentmanager.h"
 #include "gtkscrolledwindow.h"

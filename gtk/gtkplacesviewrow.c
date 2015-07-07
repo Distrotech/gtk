@@ -22,7 +22,7 @@
 #include <gtk/gtk.h>
 
 #include "gtkintl.h"
-#include "gtkplacesviewrow.h"
+#include "gtkplacesviewrowprivate.h"
 #include "gtktypebuiltins.h"
 
 struct _GtkPlacesViewRow

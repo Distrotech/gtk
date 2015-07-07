@@ -23,8 +23,8 @@
 
 #include "gtkintl.h"
 #include "gtkmarshalers.h"
-#include "gtkplacesview.h"
-#include "gtkplacesviewrow.h"
+#include "gtkplacesviewprivate.h"
+#include "gtkplacesviewrowprivate.h"
 #include "gtktypebuiltins.h"
 
 /**
@@ -112,9 +112,7 @@ emit_open_location (GtkPlacesView      *view,
 {
   GtkPlacesViewPrivate *priv;
 
-  g_return_if_fail (GTK_IS_PLACES_VIEW (view));
-
-  priv = view->priv;
+  priv = gtk_places_view_get_instance_private (view);
 
   if ((open_flags & priv->open_flags) == 0)
     open_flags = GTK_PLACES_OPEN_NORMAL;
@@ -174,8 +172,6 @@ server_list_add_server (GFile *file)
   char *title;
   char *uri;
 
-  g_return_if_fail (G_IS_FILE (file));
-
   error = NULL;
   bookmarks = server_list_load ();
 
@@ -222,9 +218,11 @@ activate_row (GtkPlacesView      *view,
               GtkPlacesViewRow   *row,
               GtkPlacesOpenFlags  flags)
 {
+  GtkPlacesViewPrivate *priv;
   GVolume *volume;
   GMount *mount;
 
+  priv = gtk_places_view_get_instance_private (view);
   mount = gtk_places_view_row_get_mount (row);
   volume = gtk_places_view_row_get_volume (row);
 
@@ -242,7 +240,7 @@ activate_row (GtkPlacesView      *view,
        * When the row is activated, the unmounted volume shall
        * be mounted and opened right after.
        */
-      view->priv->should_open_location = TRUE;
+      priv->should_open_location = TRUE;
 
       mount_volume (view, volume);
     }
@@ -292,27 +290,6 @@ on_key_press_event (GtkWidget     *widget,
     }
 
   return FALSE;
-}
-
-static gboolean
-gtk_places_view_real_get_local_only (GtkPlacesView *view)
-{
-  return view->priv->local_only;
-}
-
-static void
-gtk_places_view_real_set_local_only (GtkPlacesView *view,
-                                     gboolean       local_only)
-{
-  if (view->priv->local_only != local_only)
-    {
-      view->priv->local_only = local_only;
-
-      gtk_widget_set_visible (view->priv->actionbar, !local_only);
-      gtk_widget_set_visible (view->priv->network_grid, !local_only);
-
-      g_object_notify_by_pspec (G_OBJECT (view), properties [PROP_LOCAL_ONLY]);
-    }
 }
 
 static void
@@ -413,9 +390,7 @@ populate_servers (GtkPlacesView *view)
   gsize num_uris;
   gint i;
 
-  g_return_if_fail (GTK_IS_PLACES_VIEW (view));
-
-  priv = view->priv;
+  priv = gtk_places_view_get_instance_private (view);
   server_list = server_list_load ();
 
   if (!server_list)
@@ -497,10 +472,7 @@ add_volume (GtkPlacesView *view,
   gchar *name;
   gchar *path;
 
-  g_return_if_fail (GTK_IS_PLACES_VIEW (view));
-  g_return_if_fail (G_IS_VOLUME (volume));
-
-  priv = view->priv;
+  priv = gtk_places_view_get_instance_private (view);
 
   if (is_external_device (volume))
     return;
@@ -574,10 +546,7 @@ add_mount (GtkPlacesView *view,
   gchar *name;
   gchar *path;
 
-  g_return_if_fail (GTK_IS_PLACES_VIEW (view));
-  g_return_if_fail (G_IS_MOUNT (mount));
-
-  priv = view->priv;
+  priv = gtk_places_view_get_instance_private (view);
 
   icon = g_mount_get_icon (mount);
   name = g_mount_get_name (mount);
@@ -625,9 +594,6 @@ add_drive (GtkPlacesView *view,
   GList *volumes;
   GList *l;
 
-  g_return_if_fail (GTK_IS_PLACES_VIEW (view));
-  g_return_if_fail (G_IS_DRIVE (drive));
-
   /* Removable devices won't appear here */
   if (g_drive_can_eject (drive))
     return;
@@ -650,9 +616,7 @@ update_places (GtkPlacesView *view)
   GList *drives;
   GList *l;
 
-  g_return_if_fail (GTK_IS_PLACES_VIEW (view));
-
-  priv = view->priv;
+  priv = gtk_places_view_get_instance_private (view);
 
   /* Clear all previously added items */
   children = gtk_container_get_children (GTK_CONTAINER (priv->drives_listbox));
@@ -672,7 +636,11 @@ update_places (GtkPlacesView *view)
 
   g_list_free_full (drives, g_object_unref);
 
-  /* Add all volumes that aren't associated with a drive */
+  /*
+   * Since all volumes with an associated GDrive were already added with
+   * add_drive before, add all volumes that aren't associated with a
+   * drive.
+   */
   volumes = g_volume_monitor_get_volumes (priv->volume_monitor);
 
   for (l = volumes; l != NULL; l = l->next)
@@ -694,7 +662,10 @@ update_places (GtkPlacesView *view)
 
   g_list_free_full (volumes, g_object_unref);
 
-  /* Add mounts that has no volume (/etc/mtab mounts, ftp, sftp,...) */
+  /*
+   * Now that all necessary drives and volumes were already added, add mounts
+   * that has no volume, such as /etc/mtab mounts, ftp, sftp, etc.
+   */
   mounts = g_volume_monitor_get_mounts (priv->volume_monitor);
 
   for (l = mounts; l != NULL; l = l->next)
@@ -721,19 +692,16 @@ update_places (GtkPlacesView *view)
 }
 
 static void
-location_mount_ready_callback (GObject      *source_file,
-                               GAsyncResult *res,
-                               gpointer      user_data)
+server_mount_ready_cb (GObject      *source_file,
+                       GAsyncResult *res,
+                       gpointer      user_data)
 {
   GtkPlacesViewPrivate *priv;
   gboolean should_show;
   GError *error;
   GFile *location;
 
-  g_return_if_fail (GTK_IS_PLACES_VIEW (user_data));
-  g_return_if_fail (G_IS_FILE (source_file));
-
-  priv = GTK_PLACES_VIEW (user_data)->priv;
+  priv = gtk_places_view_get_instance_private (GTK_PLACES_VIEW (user_data));
   location = G_FILE (source_file);
   should_show = TRUE;
   error = NULL;
@@ -778,24 +746,23 @@ location_mount_ready_callback (GObject      *source_file,
 }
 
 static void
-volume_mount_ready_callback (GObject      *source_volume,
-                             GAsyncResult *res,
-                             gpointer      user_data)
+volume_mount_ready_cb (GObject      *source_volume,
+                       GAsyncResult *res,
+                       gpointer      user_data)
 {
   GtkPlacesViewPrivate *priv;
   gboolean should_show;
   GVolume *volume;
   GError *error;
 
-  g_return_if_fail (GTK_IS_PLACES_VIEW (user_data));
-  g_return_if_fail (G_IS_VOLUME (source_volume));
-
-  priv = GTK_PLACES_VIEW (user_data)->priv;
+  priv = gtk_places_view_get_instance_private (GTK_PLACES_VIEW (user_data));
   volume = G_VOLUME (source_volume);
   should_show = TRUE;
   error = NULL;
 
   g_volume_mount_finish (volume, res, &error);
+
+  g_clear_object (&priv->cancellable);
 
   if (error)
     {
@@ -841,17 +808,21 @@ volume_mount_ready_callback (GObject      *source_volume,
 }
 
 static void
-unmount_ready_callback (GObject      *source_mount,
-                        GAsyncResult *res,
-                        gpointer      user_data)
+unmount_ready_cb (GObject      *source_mount,
+                  GAsyncResult *res,
+                  gpointer      user_data)
 {
+  GtkPlacesViewPrivate *priv;
   GMount *mount;
   GError *error;
 
+  priv = gtk_places_view_get_instance_private (GTK_PLACES_VIEW (user_data));
   mount = G_MOUNT (source_mount);
   error = NULL;
 
   g_mount_unmount_with_operation_finish (mount, res, &error);
+
+  g_clear_object (&priv->cancellable);
 
   if (error)
     {
@@ -863,16 +834,19 @@ unmount_ready_callback (GObject      *source_mount,
 }
 
 static void
-mount_location (GtkPlacesView *view,
-                GFile         *location)
+mount_server (GtkPlacesView *view,
+              GFile         *location)
 {
   GtkPlacesViewPrivate *priv;
   GMountOperation *operation;
   GtkWidget *toplevel;
 
-  priv = view->priv;
+  priv = gtk_places_view_get_instance_private (view);
   toplevel = gtk_widget_get_toplevel (GTK_WIDGET (view));
   operation = gtk_mount_operation_new (GTK_WINDOW (toplevel));
+
+  g_cancellable_cancel (priv->cancellable);
+  priv->cancellable = g_cancellable_new ();
 
   g_mount_operation_set_password_save (operation, G_PASSWORD_SAVE_FOR_SESSION);
 
@@ -880,7 +854,7 @@ mount_location (GtkPlacesView *view,
                                  0,
                                  operation,
                                  priv->cancellable,
-                                 location_mount_ready_callback,
+                                 server_mount_ready_cb,
                                  view);
 
   /* unref operation here - g_file_mount_enclosing_volume() does ref for itself */
@@ -895,9 +869,12 @@ mount_volume (GtkPlacesView *view,
   GMountOperation *operation;
   GtkWidget *toplevel;
 
-  priv = view->priv;
+  priv = gtk_places_view_get_instance_private (view);
   toplevel = gtk_widget_get_toplevel (GTK_WIDGET (view));
   operation = gtk_mount_operation_new (GTK_WINDOW (toplevel));
+
+  g_cancellable_cancel (priv->cancellable);
+  priv->cancellable = g_cancellable_new ();
 
   g_mount_operation_set_password_save (operation, G_PASSWORD_SAVE_FOR_SESSION);
 
@@ -905,7 +882,7 @@ mount_volume (GtkPlacesView *view,
                   0,
                   operation,
                   priv->cancellable,
-                  volume_mount_ready_callback,
+                  volume_mount_ready_cb,
                   view);
 
   /* unref operation here - g_file_mount_enclosing_volume() does ref for itself */
@@ -919,7 +896,7 @@ popup_menu_detach_cb (GtkWidget *attach_widget,
 {
   GtkPlacesViewPrivate *priv;
 
-  priv = GTK_PLACES_VIEW (attach_widget)->priv;
+  priv = gtk_places_view_get_instance_private (GTK_PLACES_VIEW (attach_widget));
   priv->popup_menu = NULL;
 }
 
@@ -957,10 +934,8 @@ open_cb (GtkMenuItem      *item,
 
   get_view_and_file (row, &view, &file);
 
-  if (!view)
-    return;
-
-  emit_open_location (GTK_PLACES_VIEW (view), file, GTK_PLACES_OPEN_NORMAL);
+  if (file)
+    emit_open_location (GTK_PLACES_VIEW (view), file, GTK_PLACES_OPEN_NORMAL);
 
   g_clear_object (&file);
 }
@@ -973,9 +948,6 @@ open_in_new_tab_cb (GtkMenuItem      *item,
   GFile *file;
 
   get_view_and_file (row, &view, &file);
-
-  if (!view)
-    return;
 
   emit_open_location (GTK_PLACES_VIEW (view), file, GTK_PLACES_OPEN_NEW_TAB);
 
@@ -991,9 +963,6 @@ open_in_new_window_cb (GtkMenuItem      *item,
 
   get_view_and_file (row, &view, &file);
 
-  if (!view)
-    return;
-
   emit_open_location (GTK_PLACES_VIEW (view), file, GTK_PLACES_OPEN_NEW_WINDOW);
 
   g_clear_object (&file);
@@ -1008,11 +977,8 @@ mount_cb (GtkMenuItem      *item,
   GVolume *volume;
 
   view = gtk_widget_get_ancestor (GTK_WIDGET (row), GTK_TYPE_PLACES_VIEW);
-  priv = GTK_PLACES_VIEW (view)->priv;
+  priv = gtk_places_view_get_instance_private (GTK_PLACES_VIEW (view));
   volume = gtk_places_view_row_get_volume (row);
-
-  if (!view || !volume)
-    return;
 
   /*
    * When the mount item is activated, it's expected that
@@ -1028,22 +994,24 @@ static void
 unmount_cb (GtkMenuItem      *item,
             GtkPlacesViewRow *row)
 {
+  GtkPlacesViewPrivate *priv;
   GMountOperation *mount_op;
   GtkWidget *view;
   GMount *mount;
 
   view = gtk_widget_get_ancestor (GTK_WIDGET (row), GTK_TYPE_PLACES_VIEW);
+  priv = gtk_places_view_get_instance_private (GTK_PLACES_VIEW (view));
   mount = gtk_places_view_row_get_mount (row);
 
-  if (!view || !mount)
-    return;
+  g_cancellable_cancel (priv->cancellable);
+  priv->cancellable = g_cancellable_new ();
 
   mount_op = gtk_mount_operation_new (GTK_WINDOW (gtk_widget_get_toplevel (GTK_WIDGET (row))));
   g_mount_unmount_with_operation (mount,
                                   0,
                                   mount_op,
                                   NULL,
-                                  unmount_ready_callback,
+                                  unmount_ready_cb,
                                   view);
   g_object_unref (mount_op);
 }
@@ -1057,7 +1025,7 @@ build_popup_menu (GtkPlacesView    *view,
   GtkWidget *item;
   GMount *mount;
 
-  priv = view->priv;
+  priv = gtk_places_view_get_instance_private (view);
   mount = gtk_places_view_row_get_mount (row);
 
   priv->popup_menu = gtk_menu_new ();
@@ -1136,7 +1104,7 @@ popup_menu (GtkPlacesViewRow *row,
   gint button;
 
   view = gtk_widget_get_ancestor (GTK_WIDGET (row), GTK_TYPE_PLACES_VIEW);
-  priv = GTK_PLACES_VIEW (view)->priv;
+  priv = gtk_places_view_get_instance_private (GTK_PLACES_VIEW (view));
 
   g_clear_pointer (&priv->popup_menu, gtk_widget_destroy);
 
@@ -1190,7 +1158,7 @@ on_connect_button_clicked (GtkPlacesView *view)
   const gchar *uri;
   GFile *file;
 
-  priv = view->priv;
+  priv = gtk_places_view_get_instance_private (view);
   file = NULL;
 
   /*
@@ -1209,7 +1177,7 @@ on_connect_button_clicked (GtkPlacesView *view)
   if (file)
     {
       gtk_entry_set_text (GTK_ENTRY (priv->address_entry), "");
-      mount_location (view, file);
+      mount_server (view, file);
     }
   else
     {
@@ -1226,7 +1194,7 @@ on_address_entry_text_changed (GtkPlacesView *view)
   gchar *address, *scheme;
   gboolean supported;
 
-  priv = view->priv;
+  priv = gtk_places_view_get_instance_private (view);
   supported = FALSE;
   supported_protocols = g_vfs_get_supported_uri_schemes (g_vfs_get_default ());
 
@@ -1252,21 +1220,22 @@ on_listbox_row_activated (GtkPlacesView    *view,
                           GtkPlacesViewRow *row,
                           GtkWidget        *listbox)
 {
+  GtkPlacesViewPrivate *priv;
 
-  if (listbox == view->priv->recent_servers_listbox)
+  priv = gtk_places_view_get_instance_private (view);
+
+  if (listbox == priv->recent_servers_listbox)
     {
       gchar *uri;
 
       uri = g_object_get_data (G_OBJECT (row), "uri");
 
-      gtk_entry_set_text (GTK_ENTRY (view->priv->address_entry), uri);
+      gtk_entry_set_text (GTK_ENTRY (priv->address_entry), uri);
 
-      gtk_widget_hide (view->priv->recent_servers_popover);
+      gtk_widget_hide (priv->recent_servers_popover);
     }
   else
     {
-      g_return_if_fail (GTK_IS_PLACES_VIEW_ROW (row));
-
       activate_row (view, row, GTK_PLACES_OPEN_NORMAL);
     }
 }
@@ -1274,10 +1243,11 @@ on_listbox_row_activated (GtkPlacesView    *view,
 static void
 gtk_places_view_constructed (GObject *object)
 {
-  GtkPlacesViewPrivate *priv = GTK_PLACES_VIEW (object)->priv;
+  GtkPlacesViewPrivate *priv;
 
-  if (G_OBJECT_CLASS (gtk_places_view_parent_class)->constructed)
-    G_OBJECT_CLASS (gtk_places_view_parent_class)->constructed (object);
+  priv = gtk_places_view_get_instance_private (GTK_PLACES_VIEW (object));
+
+  G_OBJECT_CLASS (gtk_places_view_parent_class)->constructed (object);
 
   /* load drives */
   update_places (GTK_PLACES_VIEW (object));
@@ -1313,9 +1283,6 @@ gtk_places_view_class_init (GtkPlacesViewClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
   GtkWidgetClass *widget_class = GTK_WIDGET_CLASS (klass);
-
-  klass->set_local_only = gtk_places_view_real_set_local_only;
-  klass->get_local_only = gtk_places_view_real_get_local_only;
 
   object_class->finalize = gtk_places_view_finalize;
   object_class->constructed = gtk_places_view_constructed;
@@ -1408,10 +1375,12 @@ gtk_places_view_class_init (GtkPlacesViewClass *klass)
 static void
 gtk_places_view_init (GtkPlacesView *self)
 {
-  self->priv = gtk_places_view_get_instance_private (self);
-  self->priv->volume_monitor = g_volume_monitor_get ();
-  self->priv->cancellable = g_cancellable_new ();
-  self->priv->open_flags = GTK_PLACES_OPEN_NORMAL;
+  GtkPlacesViewPrivate *priv;
+
+  priv = gtk_places_view_get_instance_private (self);
+
+  priv->volume_monitor = g_volume_monitor_get ();
+  priv->open_flags = GTK_PLACES_OPEN_NORMAL;
 
   gtk_widget_init_template (GTK_WIDGET (self));
 }
@@ -1462,11 +1431,15 @@ void
 gtk_places_view_set_open_flags (GtkPlacesView      *view,
                                 GtkPlacesOpenFlags  flags)
 {
+  GtkPlacesViewPrivate *priv;
+
   g_return_if_fail (GTK_IS_PLACES_VIEW (view));
 
-  if (view->priv->open_flags != flags)
+  priv = gtk_places_view_get_instance_private (view);
+
+  if (priv->open_flags != flags)
     {
-      view->priv->open_flags = flags;
+      priv->open_flags = flags;
       g_object_notify_by_pspec (G_OBJECT (view), properties[PROP_OPEN_FLAGS]);
     }
 }
@@ -1484,9 +1457,13 @@ gtk_places_view_set_open_flags (GtkPlacesView      *view,
 GtkPlacesOpenFlags
 gtk_places_view_get_open_flags (GtkPlacesView *view)
 {
+  GtkPlacesViewPrivate *priv;
+
   g_return_val_if_fail (GTK_IS_PLACES_SIDEBAR (view), 0);
 
-  return view->priv->open_flags;
+  priv = gtk_places_view_get_instance_private (view);
+
+  return priv->open_flags;
 }
 
 
@@ -1504,14 +1481,13 @@ gtk_places_view_get_open_flags (GtkPlacesView *view)
 gboolean
 gtk_places_view_get_local_only (GtkPlacesView *view)
 {
-  GtkPlacesViewClass *class;
+  GtkPlacesViewPrivate *priv;
 
   g_return_val_if_fail (GTK_IS_PLACES_VIEW (view), FALSE);
 
-  class = GTK_PLACES_VIEW_GET_CLASS (view);
+  priv = gtk_places_view_get_instance_private (view);
 
-  g_assert (class->get_local_only != NULL);
-  return class->get_local_only (view);
+  return priv->local_only;
 }
 
 /**
@@ -1529,12 +1505,19 @@ void
 gtk_places_view_set_local_only (GtkPlacesView *view,
                                 gboolean       local_only)
 {
-  GtkPlacesViewClass *class;
+  GtkPlacesViewPrivate *priv;
 
   g_return_if_fail (GTK_IS_PLACES_VIEW (view));
 
-  class = GTK_PLACES_VIEW_GET_CLASS (view);
+  priv = gtk_places_view_get_instance_private (view);
 
-  g_assert (class->get_local_only != NULL);
-  class->set_local_only (view, local_only);
+  if (priv->local_only != local_only)
+    {
+      priv->local_only = local_only;
+
+      gtk_widget_set_visible (priv->actionbar, !local_only);
+      gtk_widget_set_visible (priv->network_grid, !local_only);
+
+      g_object_notify_by_pspec (G_OBJECT (view), properties [PROP_LOCAL_ONLY]);
+    }
 }

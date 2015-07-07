@@ -476,8 +476,8 @@ gtk_private_h_sources =		\
 	gtkpango.h		\
 	gtkpathbar.h		\
 	gtkplacessidebarprivate.h	\
-	gtkplacesview.h		\
-	gtkplacesviewrow.h	\
+	gtkplacesviewprivate.h	\
+	gtkplacesviewrowprivate.h	\
 	gtkpopoverprivate.h	\
 	gtkprintoperation-private.h \
 	gtkprintutils.h		\

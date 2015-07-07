@@ -43,10 +43,6 @@ struct _GtkPlacesViewClass
 {
   GtkBoxClass parent_class;
 
-  gboolean (* get_local_only)       (GtkPlacesView          *view);
-  void     (* set_local_only)       (GtkPlacesView          *view,
-                                     gboolean                local_only);
-
   void     (* open_location)        (GtkPlacesView          *view,
                                      GFile                  *location,
                                      GtkPlacesOpenFlags  open_flags);
@@ -64,10 +60,6 @@ struct _GtkPlacesViewClass
 struct _GtkPlacesView
 {
   GtkBox parent_instance;
-
-  /*< private >*/
-
-  GtkPlacesViewPrivate *priv;
 };
 
 GDK_AVAILABLE_IN_3_18
