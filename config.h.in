@@ -102,6 +102,9 @@
 /* Have the Xrandr extension library */
 #undef HAVE_RANDR
 
+/* Have the Xrandr 1.5 extension library */
+#undef HAVE_RANDR15
+
 /* Define to 1 if shm.h is available */
 #undef HAVE_SHM_H
 
