@@ -1023,8 +1023,7 @@ endif
 # Installed tools
 #
 bin_PROGRAMS = \
-	gtk-query-immodules-2.0 \
-	gtk-update-icon-cache
+	gtk-query-immodules-2.0
 
 bin_SCRIPTS = gtk-builder-convert
 

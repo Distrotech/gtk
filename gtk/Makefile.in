@@ -146,8 +146,7 @@ DIST_COMMON = $(top_srcdir)/Makefile.decl \
 @HAVE_INTROSPECTION_TRUE@@USE_X11_TRUE@am__append_15 = --add-include-path=$(top_builddir)/gdk/x11
 @HAVE_INTROSPECTION_TRUE@am__append_16 = Gtk-2.0.gir
 @HAVE_INTROSPECTION_TRUE@am__append_17 = $(gir_DATA) $(typelibs_DATA)
-bin_PROGRAMS = gtk-query-immodules-2.0$(EXEEXT) \
-	gtk-update-icon-cache$(EXEEXT)
+bin_PROGRAMS = gtk-query-immodules-2.0$(EXEEXT)
 subdir = gtk
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/gtk-doc.m4 \
@@ -946,8 +945,6 @@ gtk_query_immodules_2_0_OBJECTS =  \
 	$(am_gtk_query_immodules_2_0_OBJECTS)
 am__DEPENDENCIES_4 = $(am__DEPENDENCIES_1) \
 	$(top_builddir)/gdk/$(gdktargetlib) $(am__DEPENDENCIES_1)
-am_gtk_update_icon_cache_OBJECTS = updateiconcache.$(OBJEXT)
-gtk_update_icon_cache_OBJECTS = $(am_gtk_update_icon_cache_OBJECTS)
 SCRIPTS = $(bin_SCRIPTS)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
@@ -986,14 +983,12 @@ am__v_CCLD_1 =
 SOURCES = $(libgtk_directfb_2_0_la_SOURCES) \
 	$(libgtk_quartz_2_0_la_SOURCES) $(libgtk_win32_2_0_la_SOURCES) \
 	$(libgtk_x11_2_0_la_SOURCES) \
-	$(gtk_query_immodules_2_0_SOURCES) \
-	$(gtk_update_icon_cache_SOURCES)
+	$(gtk_query_immodules_2_0_SOURCES)
 DIST_SOURCES = $(am__libgtk_directfb_2_0_la_SOURCES_DIST) \
 	$(am__libgtk_quartz_2_0_la_SOURCES_DIST) \
 	$(am__libgtk_win32_2_0_la_SOURCES_DIST) \
 	$(am__libgtk_x11_2_0_la_SOURCES_DIST) \
-	$(gtk_query_immodules_2_0_SOURCES) \
-	$(gtk_update_icon_cache_SOURCES)
+	$(gtk_query_immodules_2_0_SOURCES)
 RECURSIVE_TARGETS = all-recursive check-recursive cscopelist-recursive \
 	ctags-recursive dvi-recursive html-recursive info-recursive \
 	install-data-recursive install-dvi-recursive \
@@ -2360,10 +2355,6 @@ clean-binPROGRAMS:
 gtk-query-immodules-2.0$(EXEEXT): $(gtk_query_immodules_2_0_OBJECTS) $(gtk_query_immodules_2_0_DEPENDENCIES) $(EXTRA_gtk_query_immodules_2_0_DEPENDENCIES) 
 	@rm -f gtk-query-immodules-2.0$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(gtk_query_immodules_2_0_OBJECTS) $(gtk_query_immodules_2_0_LDADD) $(LIBS)
-
-gtk-update-icon-cache$(EXEEXT): $(gtk_update_icon_cache_OBJECTS) $(gtk_update_icon_cache_DEPENDENCIES) $(EXTRA_gtk_update_icon_cache_DEPENDENCIES) 
-	@rm -f gtk-update-icon-cache$(EXEEXT)
-	$(AM_V_CCLD)$(LINK) $(gtk_update_icon_cache_OBJECTS) $(gtk_update_icon_cache_LDADD) $(LIBS)
 install-binSCRIPTS: $(bin_SCRIPTS)
 	@$(NORMAL_INSTALL)
 	@list='$(bin_SCRIPTS)'; test -n "$(bindir)" || list=; \
@@ -2949,7 +2940,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgtk_quartz_2_0_la-gtkwindow.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgtk_quartz_2_0_la-gtkxembed.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/queryimmodules.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/updateiconcache.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
